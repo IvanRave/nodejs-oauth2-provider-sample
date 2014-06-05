@@ -1,12 +1,10 @@
+/** @module routers/account-router */
+
 var appMdw = require('../mdw/app-mdw');
 
 var cbkPageLogin = function (req, res) {
 	// show ejs template from the views folder
 	res.render('login');
-
-	// {
-	// failuremsg : req.flash('error')
-	// }
 };
 
 var cbkLogIn = function (req, res, next, err) {
@@ -69,16 +67,6 @@ exports.createRouter = function (express, passport) {
 		cbkPageInfo);
 
 	return accountRouter;
-
-	// accountRouter.post('/login', passport.authenticate('local', {
-	// //successReturnToOrRedirect : '/success-login',
-	// failureRedirect : '/account/login',
-	// failureFlash : true
-	// //failureFlash : 'Invalid username or password.'
-	// }), function (req, res) {
-	// // req.user - contains auth data
-	// res.redirect('/account/info');
-	// });
 };
 
 module.exports = exports;

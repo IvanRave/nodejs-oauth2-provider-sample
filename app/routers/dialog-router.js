@@ -1,13 +1,14 @@
 /** @module routers/dialog-router */
 
-var appMdw = require('../mdw/app-mdw');
 var oauth2orize = require('oauth2orize');
-var authClientStorage = require('../db/auth-client');
-var uidHelper = require('../helpers/uid-helper');
 var ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy;
+var appMdw = require('../mdw/app-mdw');
+var authClientStorage = require('../db/auth-client-storage');
+var uidHelper = require('../helpers/uid-helper');
+var lgr = require('../helpers/lgr-helper').init(module);
 
 var cbkAutorize = function (clientId, redirectUri, done) {
-	console.log(clientId, redirectUri);
+	lgr.info('clientId: %s, redirectUri: %s', clientId, redirectUri);
 
 	authClientStorage.findByClientId(clientId, function (err, client) {
 		if (err) {
@@ -94,7 +95,12 @@ var cbkClientPasswordStrategy = function (clientId, clientSecret, done) {
 	});
 };
 
+var skipDecisionMdw = function (req, res) {
+	res.redirect('/dialog/decision?transaction_id=' + req.oauth2.transactionID);
+};
+
 exports.createRouter = function (express, passport) {
+	lgr.info('Created router');
 	passport.use(new ClientPasswordStrategy(cbkClientPasswordStrategy));
 
 	var router = express.Router();
@@ -114,9 +120,7 @@ exports.createRouter = function (express, passport) {
 	router.get('/authorize',
 		appMdw.ensureAuth,
 		server.authorization(cbkAutorize),
-		function (req, res) {
-		res.redirect('/dialog/decision?transaction_id=' + req.oauth2.transactionID);
-	});
+		skipDecisionMdw);
 
 	// 3. Skip decision page
 	// 4. Redirect to callback_url
@@ -127,7 +131,7 @@ exports.createRouter = function (express, passport) {
 	// 5. Separate request: change code to token
 	router.post('/token',
 		function (req, res, next) {
-		console.log('logging token request');
+		lgr.info('logging token request');
 		next();
 	}, passport.authenticate('oauth2-client-password', {
 			session : false

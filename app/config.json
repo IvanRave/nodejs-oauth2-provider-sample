@@ -6,5 +6,13 @@
 	},
 	"mongoose" : {
 		"uri" : "mongodb://localhost/testAPI"
-	}
+	},
+	"authClients" : [{
+			"id" : 1,
+			"name" : "oil-client",
+			"clientId" : "abc123",
+			"clientSecret" : "ssh-secret",
+			"redirectUri" : "http://localhost:22222/auth/oil/callback"
+		}
+	]
 }

@@ -6,20 +6,22 @@ var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var expressSession = require('express-session');
 var passport = require('passport');
-var passportHelper = require('./helpers/passport-helper');
-////var connectFlash = require('connect-flash');
+var LocalStrategy = require('passport-local').Strategy;
+
+var srzHelper = require('./helpers/srz-helper');
 var configHelper = require('./helpers/config-helper');
-var loggerHelper = require('./helpers/logger-helper').getLogger(module.filename);
+var lgr = require('./helpers/lgr-helper').init(module);
+var strategyHelper = require('./helpers/strategy-helper');
 var accountRouter = require('./routers/account-router');
 var dialogRouter = require('./routers/dialog-router');
 
 var cbkPageWelcome = function (req, res) {
-	res.send('This is a sample app with local authentication');
+	res.send('Welcome to the OAuth2 provider');
 };
 
 var cbkPageNonExists = function (req, res) {
 	res.status(404);
-	loggerHelper.debug('Not found URL: %s', req.url);
+	lgr.debug('Not found URL: %s', req.url);
 	res.send({
 		error : 'Not found'
 	});
@@ -27,10 +29,11 @@ var cbkPageNonExists = function (req, res) {
 };
 
 var cbkListen = function () {
-	loggerHelper.info('Express server listening on port ' + configHelper.get('port'));
+	lgr.info('Express server listening on port: %s', configHelper.get('port'));
 };
 
 exports.init = function () {
+  lgr.info('run app');
 	var app = express();
 	app.set('view engine', 'ejs');
 	// views The view directory path, defaulting to "process.cwd() + '/views'"
@@ -47,11 +50,14 @@ exports.init = function () {
 			// // }
 		}));
 
-	passportHelper.fill(passport);
+	passport.serializeUser(srzHelper.serialize);
+	passport.deserializeUser(srzHelper.deserialize);
+
+	passport.use(new LocalStrategy({}, strategyHelper.handleLocalStrategy));
+
 	app.use(passport.initialize());
 	app.use(passport.session());
 
-	////app.use(connectFlash());
 	app.use('/account', accountRouter.createRouter(express, passport));
 	app.use('/dialog', dialogRouter.createRouter(express, passport));
 	// For other pages

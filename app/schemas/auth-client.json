@@ -1,19 +1,19 @@
 {
-	"table" : "authUser",
+	"table" : "authClient",
 	"columns" : {
 		"id" : {
 			"dataType" : "number"
 		},
-		"username" : {
+		"name" : {
 			"dataType" : "string"
 		},
-		"salt" : {
+		"clientId" : {
 			"dataType" : "string"
 		},
-		"passHash" : {
+		"clientSecret" : {
 			"dataType" : "string"
 		},
-		"passClean" : {
+		"redirectUri" : {
 			"dataType" : "string"
 		}
 	}
