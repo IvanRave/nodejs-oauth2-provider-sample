@@ -1,0 +1,20 @@
+{
+	"table" : "authUser",
+	"columns" : {
+		"id" : {
+			"dataType" : "number"
+		},
+		"username" : {
+			"dataType" : "string"
+		},
+		"salt" : {
+			"dataType" : "string"
+		},
+		"hashedPassword" : {
+			"dataType" : "string"
+		},
+		"cleanPassword" : {
+			"dataType" : "string"
+		}
+	}
+}

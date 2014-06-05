@@ -1,0 +1,10 @@
+{
+	"port" : 1337,
+	"security" : {
+		"tokenLife" : 3600,
+		"secret" : "supercat"
+	},
+	"mongoose" : {
+		"uri" : "mongodb://localhost/testAPI"
+	}
+}
