@@ -1,13 +1,22 @@
-/** @module helpers/strategy-helper */
+/** @module db/auth-user-storage-helper */
 
 var BaseModel = require('../models/base');
 var authUserSchema = require('../schemas/auth-user');
 var cryptoHelper = require('../helpers/crypto-helper');
-var authUserStorage = require('../db/auth-user-storage');
 
-exports.handleLocalStrategy = function (username, password, done) {
+var appHelper = require('../helpers/app-helper');
+
+var findByUserName = function (authUsers, username, next) {
+	appHelper.findRec(authUsers, {
+		username : username
+	}, next);
+};
+
+exports.findByUserName = findByUserName;
+
+exports.handleLocalStrategy = function (authUsers, username, password, done) {
 	// Find by user name
-	authUserStorage.findByUserName(username, function (err, needUserData) {
+	findByUserName(authUsers, username, function (err, needUserData) {
 		// Find some user from db
 		var needUser = new BaseModel(needUserData, authUserSchema);
 		console.log(JSON.stringify(needUser));

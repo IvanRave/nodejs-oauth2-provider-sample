@@ -8,6 +8,9 @@ var filePath = {
 	},
 	jshintApp : {
 		src : 'app/**/*.js'
+	},
+	jshintTest : {
+		src : 'test/**/*.js'
 	}
 };
 
@@ -18,5 +21,11 @@ gulp.task('default', function () {
 
 	gulp.src(filePath.jshintApp.src)
 	.pipe(jshint('.jshintrc'))
+	.pipe(jshint.reporter(jshintReporter));
+});
+
+gulp.task('test', function () {
+	gulp.src(filePath.jshintTest.src)
+	.pipe(jshint('./test/.jshintrc'))
 	.pipe(jshint.reporter(jshintReporter));
 });

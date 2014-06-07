@@ -11,9 +11,10 @@ var LocalStrategy = require('passport-local').Strategy;
 var srzHelper = require('./helpers/srz-helper');
 var configHelper = require('./helpers/config-helper');
 var lgr = require('./helpers/lgr-helper').init(module);
-var strategyHelper = require('./helpers/strategy-helper');
+var authUserStorageHelper = require('./db/auth-user-storage-helper');
 var accountRouter = require('./routers/account-router');
 var dialogRouter = require('./routers/dialog-router');
+var cryptoHelper = require('./helpers/crypto-helper');
 
 var cbkPageWelcome = function (req, res) {
 	res.send('Welcome to the OAuth2 provider');
@@ -33,7 +34,7 @@ var cbkListen = function () {
 };
 
 exports.init = function () {
-  lgr.info('run app');
+	lgr.info('run app');
 	var app = express();
 	app.set('view engine', 'ejs');
 	// views The view directory path, defaulting to "process.cwd() + '/views'"
@@ -53,7 +54,22 @@ exports.init = function () {
 	passport.serializeUser(srzHelper.serialize);
 	passport.deserializeUser(srzHelper.deserialize);
 
-	passport.use(new LocalStrategy({}, strategyHelper.handleLocalStrategy));
+	var demoUserData = {
+		id : 123,
+		username : 'Ivan',
+		passClean : 'Rave',
+		salt : 'qwerty'
+	};
+
+	demoUserData.passHash = cryptoHelper.encryptSha(demoUserData.passClean,
+			demoUserData.salt);
+
+	// at this time only few clients,
+	// no database
+	var authUsers = [demoUserData];
+
+	passport.use(new LocalStrategy({},
+			authUserStorageHelper.handleLocalStrategy.bind(null, authUsers)));
 
 	app.use(passport.initialize());
 	app.use(passport.session());

@@ -3,14 +3,20 @@
 var oauth2orize = require('oauth2orize');
 var ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy;
 var appMdw = require('../mdw/app-mdw');
-var authClientStorage = require('../db/auth-client-storage');
+var authClientStorageHelper = require('../db/auth-client-storage-helper');
 var uidHelper = require('../helpers/uid-helper');
 var lgr = require('../helpers/lgr-helper').init(module);
+
+var configHelper = require('../helpers/config-helper');
+
+// At this time only few clients,
+// no database
+var authClients = configHelper.get('authClients');
 
 var cbkAutorize = function (clientId, redirectUri, done) {
 	lgr.info('clientId: %s, redirectUri: %s', clientId, redirectUri);
 
-	authClientStorage.findByClientId(clientId, function (err, client) {
+	authClientStorageHelper.findByClientId(authClients, clientId, function (err, client) {
 		if (err) {
 			console.log('find error');
 			return done(err);
@@ -33,8 +39,10 @@ var cbkAutorize = function (clientId, redirectUri, done) {
 };
 
 var cbkGrantCode = function (client, redirectUri, user, ares, done) {
-	done(null, '1234567890123456');
-	// var code = utils.uid(16);
+	var code = uidHelper.generate(16);
+	// TODO: save this code to database
+	//       to validate later
+	done(null, code);
 
 	// var ac = new AuthorizationCode(code, client.id, redirectURI, user.id, ares.scope);
 	// ac.save(function (err) {
@@ -50,6 +58,7 @@ var cbkExchangeCode = function (client, code, redirectURI, done) {
 	var asdf = uidHelper.generate(256);
 	console.log('generated uid', asdf);
 	done(null, asdf);
+
 	// AuthorizationCode.findOne(code, function(err, code) {
 	// if (err) { return done(err); }
 	// if (client.id !== code.clientId) { return done(null, false); }
@@ -69,28 +78,11 @@ var cbkSerializeClient = function (client, done) {
 };
 
 var cbkDeserializeClient = function (id, done) {
-	authClientStorage.findById(id, function (err, client) {
+	authClientStorageHelper.findById(authClients, id, function (err, client) {
 		if (err) {
 			return done(err);
 		}
 
-		return done(null, client);
-	});
-};
-
-var cbkClientPasswordStrategy = function (clientId, clientSecret, done) {
-	console.log('client-password exec clientId', clientId);
-	authClientStorage.findByClientId(clientId, function (err, client) {
-		console.log('client-password exec', err, client);
-		if (err) {
-			return done(err);
-		}
-		if (!client) {
-			return done(null, false);
-		}
-		if (client.clientSecret !== clientSecret) {
-			return done(null, false);
-		}
 		return done(null, client);
 	});
 };
@@ -101,7 +93,8 @@ var skipDecisionMdw = function (req, res) {
 
 exports.createRouter = function (express, passport) {
 	lgr.info('Created router');
-	passport.use(new ClientPasswordStrategy(cbkClientPasswordStrategy));
+	passport.use(new ClientPasswordStrategy(
+			authClientStorageHelper.validateSecret.bind(null, authClients)));
 
 	var router = express.Router();
 
@@ -133,7 +126,8 @@ exports.createRouter = function (express, passport) {
 		function (req, res, next) {
 		lgr.info('logging token request');
 		next();
-	}, passport.authenticate('oauth2-client-password', {
+	},
+		passport.authenticate('oauth2-client-password', {
 			session : false
 		}),
 		server.token(),
