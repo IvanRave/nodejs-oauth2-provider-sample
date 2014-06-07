@@ -69,7 +69,7 @@ exports.init = function () {
 	var authUsers = [demoUserData];
 
 	passport.use(new LocalStrategy({},
-			authUserStorageHelper.handleLocalStrategy.bind(null, authUsers)));
+			authUserStorageHelper.findAndCheck.bind(null, authUsers)));
 
 	app.use(passport.initialize());
 	app.use(passport.session());

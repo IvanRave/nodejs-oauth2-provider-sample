@@ -2,6 +2,9 @@
 
 var appHelper = require('../helpers/app-helper');
 
+/**
+ * Find by id
+ */
 exports.findById = function (authClients, id, done) {
 	appHelper.findRec(authClients, {
 		id : id
