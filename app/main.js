@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 var expressSession = require('express-session');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var MongoClient = require('mongodb').MongoClient;
 
 var srzHelper = require('./helpers/srz-helper');
 var configHelper = require('./helpers/config-helper');
@@ -14,7 +15,7 @@ var lgr = require('./helpers/lgr-helper').init(module);
 var authUserStorageHelper = require('./db/auth-user-storage-helper');
 var accountRouter = require('./routers/account-router');
 var dialogRouter = require('./routers/dialog-router');
-var cryptoHelper = require('./helpers/crypto-helper');
+//var cryptoHelper = require('./helpers/crypto-helper');
 
 var cbkPageWelcome = function (req, res) {
 	res.send('Welcome to the OAuth2 provider');
@@ -33,8 +34,7 @@ var cbkListen = function () {
 	lgr.info('Express server listening on port: %s', configHelper.get('port'));
 };
 
-exports.init = function () {
-	lgr.info('run app');
+var startApiService = function (authDb) {
 	var app = express();
 	app.set('view engine', 'ejs');
 	// views The view directory path, defaulting to "process.cwd() + '/views'"
@@ -54,22 +54,24 @@ exports.init = function () {
 	passport.serializeUser(srzHelper.serialize);
 	passport.deserializeUser(srzHelper.deserialize);
 
-	var demoUserData = {
-		id : 123,
-		username : 'Ivan',
-		passClean : 'Rave',
-		salt : 'qwerty'
-	};
+	// var demoUserData = {
+	// id : 123,
+	// username : 'Ivan',
+	// passClean : 'Rave',
+	// salt : 'qwerty'
+	// };
 
-	demoUserData.passHash = cryptoHelper.encryptSha(demoUserData.passClean,
-			demoUserData.salt);
+	// demoUserData.passHash = cryptoHelper.encryptSha(demoUserData.passClean,
+	// demoUserData.salt);
 
 	// at this time only few clients,
 	// no database
-	var authUsers = [demoUserData];
+	//var authUsers = [demoUserData];
+
+	var authUserCln = authDb.collection('authUser');
 
 	passport.use(new LocalStrategy({},
-			authUserStorageHelper.findAndCheck.bind(null, authUsers)));
+			authUserStorageHelper.findAndCheck.bind(null, authUserCln)));
 
 	app.use(passport.initialize());
 	app.use(passport.session());
@@ -83,6 +85,21 @@ exports.init = function () {
 	app.use(cbkPageNonExists);
 
 	app.listen(configHelper.get('port'), cbkListen);
+};
+
+var cbkAuthDbConnect = function (errConn, authDb) {
+	if (errConn) {
+		lgr.error(errConn.message);
+		throw errConn;
+	}
+
+	lgr.info('auth db is connected');
+	startApiService(authDb);
+};
+
+exports.init = function () {
+	MongoClient.connect(configHelper.get('authConn').uri,
+		cbkAuthDbConnect);
 };
 
 module.exports = exports;

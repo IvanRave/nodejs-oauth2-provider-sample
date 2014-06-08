@@ -4,8 +4,8 @@
 		"tokenLife" : 3600,
 		"secret" : "supercat"
 	},
-	"mongoose" : {
-		"uri" : "mongodb://localhost/testAPI"
+	"authConn" : {
+		"uri" : "mongodb://localhost/oil-auth"
 	},
 	"authClients" : [{
 			"id" : 1,

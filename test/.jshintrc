@@ -13,5 +13,5 @@
 	"esnext" : true,
 	"node" : true,
 	"browser" : true,
-	"predef" : ["describe", "it"]
+	"predef" : ["describe", "it", "before", "beforeEach", "after", "afterEach"]
 }
