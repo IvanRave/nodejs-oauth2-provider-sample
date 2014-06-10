@@ -1,7 +1,7 @@
 /**
  * Methods to manage the storage
  *     properties from the auth user model only in this file!!!
- * @module db/auth-user-storage-helper
+ * @module db/auth-user-helper
  * @todo #23! Add methods to register auth users
  *       check find methods after
  */
@@ -9,6 +9,7 @@
 var BaseModel = require('../models/base');
 var authUserSchema = require('../schemas/auth-user');
 var cryptoHelper = require('../helpers/crypto-helper');
+var validationHelper = require('../helpers/validation-helper');
 
 /*
  * Find an authUser
@@ -33,9 +34,16 @@ exports.findById = function (authUserCln, id, next) {
 	}, next); // next(err, item)
 };
 
-// exports.insertAuthUser = function(authUserColl, authUserItem, next){
-// authUserColl.insert(authUserItem, function(
-// };
+/**
+ * Insert an auth user
+ */
+exports.insertAuthUser = function (authUserCln, authUserItem, next) {
+	// Set some default values
+	// ...
+
+	// Insert a record
+	authUserCln.insert(authUserItem, next);
+};
 
 var cbkFindByUserName = function (username, password, next, err, needUserData) {
 	if (err) {
@@ -44,17 +52,26 @@ var cbkFindByUserName = function (username, password, next, err, needUserData) {
 
 	if (!needUserData) {
 		return next(null, false, {
-			message : 'NoSuchUser'
+			message : 'noSuchUser'
 		});
 	}
 
 	// Find some user from db
+	var validationErrors = validationHelper.validate(needUserData, authUserSchema);
+	if (validationErrors.length > 0) {
+		return next(null, false, {
+			message : {
+				'validationErrors' : validationErrors
+			}
+		});
+	}
+
 	var needUser = new BaseModel(needUserData, authUserSchema);
 	console.log(JSON.stringify(needUser));
-
+  
 	if (username !== needUser.username) {
 		return next(null, false, {
-			message : 'WrongUsername'
+			message : 'wrongUsername'
 		});
 	}
 
@@ -62,7 +79,7 @@ var cbkFindByUserName = function (username, password, next, err, needUserData) {
 
 	if (sourcePassHash !== needUser.passHash) {
 		return next(null, false, {
-			message : 'WrongPassword'
+			message : 'wrongPassword'
 		});
 	}
 

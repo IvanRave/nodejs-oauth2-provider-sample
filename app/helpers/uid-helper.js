@@ -23,7 +23,8 @@ function getRandomInt(min, max) {
  */
 exports.generate = function (len) {
 	var buf = [],
-	chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+	// exclude 0Ool1
+	chars = 'ABCDEFGHIJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789',
 	charlen = chars.length;
 
 	for (var i = 0; i < len; ++i) {

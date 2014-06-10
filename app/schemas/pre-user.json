@@ -1,0 +1,17 @@
+{
+	"table" : "preUser",
+	"columns" : {
+		"email" : {
+			"dataType" : "string",
+			"maxLength" : 320
+		},
+		"token" : {
+			"dataType" : "string",
+			"maxLength" : 50
+		},
+		"attemptCount" : {
+			"dataType" : "number",
+			"defaultValue" : 0
+		}
+	}
+}

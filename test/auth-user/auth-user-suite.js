@@ -2,8 +2,7 @@ var assert = require('assert');
 
 var appPath = '../../app';
 
-var authUserStorageHelper = require(appPath + '/db/auth-user-storage-helper');
-var authUserStorageHelper = require(appPath + '/db/auth-user-storage-helper');
+var authUserHelper = require(appPath + '/db/auth-user-helper');
 var authUserGenerator = require('./data-generator');
 
 // Our authUser storage
@@ -11,7 +10,7 @@ var authUserGenerator = require('./data-generator');
 // Demo user can't be in a real storage
 
 var findByUserNameTest = function (authUserClnScope, done) {
-	authUserStorageHelper.findByUserName(authUserClnScope.cln, 'Ivan', function (err, authUser) {
+	authUserHelper.findByUserName(authUserClnScope.cln, 'Ivan', function (err, authUser) {
 		if (err) {
 			return done(err);
 		}
@@ -35,7 +34,7 @@ var findByUserNameTest = function (authUserClnScope, done) {
 };
 
 var findAndCheckTest = function (authUserClnScope, done) {
-	authUserStorageHelper.findAndCheck(authUserClnScope.cln, 'Ivan', 'SuperPass', function (err, needUser) {
+	authUserHelper.findAndCheck(authUserClnScope.cln, 'Ivan', 'SuperPass', function (err, needUser) {
 		if (err) {
 			throw err;
 		}
@@ -65,7 +64,7 @@ var cbkFindByIdTest = function (done, errFind, item) {
 };
 
 var findByIdTest = function (authUserClnScope, done) {
-	authUserStorageHelper.findById(authUserClnScope.cln, 123,
+	authUserHelper.findById(authUserClnScope.cln, 123,
 		cbkFindByIdTest.bind(null, done));
 };
 

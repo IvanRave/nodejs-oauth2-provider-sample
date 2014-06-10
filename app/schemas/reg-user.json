@@ -1,0 +1,15 @@
+{
+	"table" : "regUser",
+	"columns" : {
+		"email" : {
+			"dataType" : "string",
+			"maxLength" : 320
+		},
+		"pss" : {
+			"dataType" : "string"
+		},
+		"pssConfirmation" : {
+			"dataType" : "string"
+		}
+	}
+}

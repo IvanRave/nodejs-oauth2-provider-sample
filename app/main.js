@@ -12,7 +12,7 @@ var MongoClient = require('mongodb').MongoClient;
 var srzHelper = require('./helpers/srz-helper');
 var configHelper = require('./helpers/config-helper');
 var lgr = require('./helpers/lgr-helper').init(module);
-var authUserStorageHelper = require('./db/auth-user-storage-helper');
+var authUserHelper = require('./db/auth-user-helper');
 var accountRouter = require('./routers/account-router');
 var dialogRouter = require('./routers/dialog-router');
 //var cryptoHelper = require('./helpers/crypto-helper');
@@ -71,12 +71,12 @@ var startApiService = function (authDb) {
 	var authUserCln = authDb.collection('authUser');
 
 	passport.use(new LocalStrategy({},
-			authUserStorageHelper.findAndCheck.bind(null, authUserCln)));
+			authUserHelper.findAndCheck.bind(null, authUserCln)));
 
 	app.use(passport.initialize());
 	app.use(passport.session());
 
-	app.use('/account', accountRouter.createRouter(express, passport));
+	app.use('/account', accountRouter.createRouter(express, passport, authDb));
 	app.use('/dialog', dialogRouter.createRouter(express, passport));
 	// For other pages
 	app.use('/', cbkPageWelcome);
