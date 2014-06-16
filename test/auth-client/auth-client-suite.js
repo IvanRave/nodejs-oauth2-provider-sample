@@ -1,10 +1,10 @@
 var assert = require('assert');
-var authClientStorageHelper = require('../../app/db/auth-client-storage-helper');
+var authClientHelper = require('../../app/db/auth-client-helper');
 
 var clientPassTest = function (tmpStorage, done) {
 	var checkedAuthClient = tmpStorage[0];
 
-	authClientStorageHelper.validateSecret(tmpStorage,
+	authClientHelper.validateSecret(tmpStorage,
 		checkedAuthClient.clientId,
 		checkedAuthClient.clientSecret, function (err, client) {
 		if (err) {

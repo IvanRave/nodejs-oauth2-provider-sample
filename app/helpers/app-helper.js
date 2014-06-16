@@ -23,4 +23,11 @@ exports.isValidEmail = function (email) {
 	return re.test(email);
 };
 
+/**
+ * Convert to integer
+ */
+exports.toInt = function (val) {
+	return parseInt(val);
+};
+
 module.exports = exports;

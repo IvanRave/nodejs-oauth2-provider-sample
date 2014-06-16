@@ -5,6 +5,10 @@
 			"dataType" : "string",
 			"maxLength" : 320
 		},
+		"emailToken" : {
+			"dataType" : "string",
+			"maxLength" : 50
+		},
 		"pss" : {
 			"dataType" : "string"
 		},

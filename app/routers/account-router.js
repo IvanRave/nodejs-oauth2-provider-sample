@@ -1,13 +1,8 @@
 /** @module routers/account-router */
 
 var appMdw = require('../mdw/app-mdw');
-var validationHelper = require('../helpers/validation-helper');
-var regUserSchema = require('../schemas/reg-user');
-var preUserSchema = require('../schemas/pre-user');
-var BaseModel = require('../models/base');
-var regUserHelper = require('../db/reg-user-helper');
-var preUserHelper = require('../db/pre-user-helper');
-var emailConfirmationHelper = require('../helpers/email-confirmation-helper');
+var emailConfirmationRoute = require('../routes/email-confirmation');
+var registerRoute = require('../routes/register');
 var lgr = require('../helpers/lgr-helper');
 
 var cbkPageLogin = function (req, res) {
@@ -43,7 +38,7 @@ var cbkPauth = function (req, res, next, err, user, info) {
 	}
 
 	// Auth errors or info
-	console.log('info', info);
+	lgr.info(info);
 
 	if (!user) {
 		return res.redirect('/account/login?message=' + info.message);
@@ -65,83 +60,6 @@ var cbkPageLogout = function (req, res) {
 	res.redirect('/');
 };
 
-var cbkRegister = function (req, res) {
-	console.log(req.body);
-	var validationErrors = validationHelper.validate(req.body, regUserSchema);
-	if (validationErrors.length > 0) {
-		res.send(400, {
-			'validationErrors' : validationErrors
-		});
-
-		return;
-	}
-
-	var regUser = new BaseModel(req.body, regUserSchema);
-
-	if (!regUserHelper.isValidPssConfirmation(regUser)) {
-		res.send(422, {
-			message : 'passwordConfirmationIsFailed'
-		});
-
-		return;
-	}
-
-	// Generate some code
-	// Send by email to the @email field
-	// If successfull - save regUser to the regUser table
-	// ConfirmationToken = c.String(maxLength: 128) - overflow field in authUser table
-	// email
-	// confirmation-code
-
-	res.send('register page' + JSON.stringify(regUser));
-};
-
-var cbkInsertPreUser = function (res, err) {
-  if (err){
-    lgr.error(err.message);
-    res.send(500, 'preUserCanNotBeInserted');
-    return;
-  }
-  
-  res.send();
-};
-
-var cbkGenerateAndSend = function (email, preUserCln, res, err, token) {
-	if (err) {
-		res.send(422, {
-			message : err.message
-		});
-		return;
-	}
-
-	var preUserData = {
-		email : email,
-		token : token,
-		attemptCount : 0 // try default
-	};
-
-	var validationErrors = validationHelper.validate(preUserData, preUserSchema);
-
-	if (validationErrors.length > 0) {
-		// Show one by one errors
-		res.send(422, {
-			'validationErrors' : validationErrors
-		});
-		return;
-	}
-
-	var preUser = new BaseModel(preUserData, preUserSchema);
-
-	preUserHelper.insertPreUser(preUserCln, preUser,
-		cbkInsertPreUser.bind(null, res));
-};
-
-var cbkEmailConfirmation = function (preUserCln, req, res) {
-	var email = req.body.email;
-	emailConfirmationHelper.generateAndSendToken(email,
-		cbkGenerateAndSend.bind(null, email, preUserCln, res));
-};
-
 exports.createRouter = function (express, passport, authDb) {
 	var accountRouter = express.Router();
 	accountRouter.get('/login', cbkPageLogin);
@@ -156,13 +74,26 @@ exports.createRouter = function (express, passport, authDb) {
 	// send email for approving
 	// if an user in the authUser table already ->
 	//        send this error - an email is already taken
-	accountRouter.post('/register/email-confirmation', cbkEmailConfirmation.bind(null, preUserCln));
+	accountRouter.post('/email-confirmation', emailConfirmationRoute.init.bind(null, preUserCln));
 
 	// send email, confirmationToken, password, passwordConfirmation
-	accountRouter.post('/register', cbkRegister);
+	accountRouter.post('/register', registerRoute.init);
 	// check in the preRegUser table
 	// if success, move to the authUser table
 	// login to the cabinet (password and email be inputed by the user)
+
+	// If an user firsly approve his email (by confirmation code) and
+	//       then enter his password -> vulnerability between this moments
+	//       someone else may links user's email and some password
+
+	// In our first scenario (password in first window)
+	//     1. an user sends password, email to the server
+	//        we send a confirmation code to this email
+	//     2. an user sends CC
+	//        BUT: betweend these two steps - vulnerability
+	//        someone can send user's email and other password
+	//        an user receives second CC (may think as a bug)
+	//        and confirm another password instead own
 
 	return accountRouter;
 };

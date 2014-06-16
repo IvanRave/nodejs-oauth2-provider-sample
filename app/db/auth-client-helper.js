@@ -1,4 +1,4 @@
-/** @module db/auth-client-storage-helper */
+/** @module db/auth-client-helper */
 
 var appHelper = require('../helpers/app-helper');
 

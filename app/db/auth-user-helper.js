@@ -68,7 +68,7 @@ var cbkFindByUserName = function (username, password, next, err, needUserData) {
 
 	var needUser = new BaseModel(needUserData, authUserSchema);
 	console.log(JSON.stringify(needUser));
-  
+
 	if (username !== needUser.username) {
 		return next(null, false, {
 			message : 'wrongUsername'

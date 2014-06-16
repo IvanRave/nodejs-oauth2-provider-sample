@@ -3,7 +3,7 @@
 var oauth2orize = require('oauth2orize');
 var ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy;
 var appMdw = require('../mdw/app-mdw');
-var authClientStorageHelper = require('../db/auth-client-storage-helper');
+var authClientHelper = require('../db/auth-client-helper');
 var uidHelper = require('../helpers/uid-helper');
 var lgr = require('../helpers/lgr-helper').init(module);
 
@@ -16,7 +16,7 @@ var authClients = configHelper.get('authClients');
 var cbkAutorize = function (clientId, redirectUri, done) {
 	lgr.info('clientId: %s, redirectUri: %s', clientId, redirectUri);
 
-	authClientStorageHelper.findByClientId(authClients, clientId, function (err, client) {
+	authClientHelper.findByClientId(authClients, clientId, function (err, client) {
 		if (err) {
 			console.log('find error');
 			return done(err);
@@ -78,7 +78,7 @@ var cbkSerializeClient = function (client, done) {
 };
 
 var cbkDeserializeClient = function (id, done) {
-	authClientStorageHelper.findById(authClients, id, function (err, client) {
+	authClientHelper.findById(authClients, id, function (err, client) {
 		if (err) {
 			return done(err);
 		}
@@ -94,7 +94,7 @@ var skipDecisionMdw = function (req, res) {
 exports.createRouter = function (express, passport) {
 	lgr.info('Created router');
 	passport.use(new ClientPasswordStrategy(
-			authClientStorageHelper.validateSecret.bind(null, authClients)));
+			authClientHelper.validateSecret.bind(null, authClients)));
 
 	var router = express.Router();
 

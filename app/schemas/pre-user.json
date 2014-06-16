@@ -5,13 +5,12 @@
 			"dataType" : "string",
 			"maxLength" : 320
 		},
-		"token" : {
+		"emailToken" : {
 			"dataType" : "string",
 			"maxLength" : 50
 		},
-		"attemptCount" : {
-			"dataType" : "number",
-			"defaultValue" : 0
+		"created" : {
+			"dataType" : "number"
 		}
 	}
 }
