@@ -1,24 +1,24 @@
-/** @module routes/email-confirmation */
+/** @module helpers/email-token-handler */
 
 // test: http POST http://localhost:1337/account/email-confirmation email=ivanrave@yandex.ru
-var emailConfirmationHelper = require('../helpers/email-confirmation-helper');
+var emailTokenSender = require('../helpers/email-token-sender');
 var emailTokenHelper = require('../db/email-token-helper');
 var appHelper = require('../helpers/app-helper');
 var lgr = require('../helpers/lgr-helper');
 
-var cbkUpsertToken = function (res, err) {
+var cbkUpsertToken = function (cbkRoute, err) {
 	if (err) {
 		lgr.error(err.message);
-		res.send(500, 'emailTokenCanNotBeInserted');
+		cbkRoute(500, 'emailTokenCanNotBeInserted');
 		return;
 	}
 
-	res.send();
+	cbkRoute(200);
 };
 
-var cbkGenerateAndSend = function (email, contactTokenCln, res, err, contactTokenStr) {
+var cbkGenerateAndSend = function (email, contactTokenCln, cbkRoute, err, contactTokenStr) {
 	if (err) {
-		res.send(422, {
+		cbkRoute(422, {
 			message : err.message
 		});
 
@@ -37,7 +37,7 @@ var cbkGenerateAndSend = function (email, contactTokenCln, res, err, contactToke
 
 	if (validationErrors.length > 0) {
 		// Show one by one errors
-		res.send(422, {
+		cbkRoute(422, {
 			'validationErrors' : validationErrors
 		});
 
@@ -47,18 +47,17 @@ var cbkGenerateAndSend = function (email, contactTokenCln, res, err, contactToke
 	var emailToken = emailTokenHelper.createEmailToken(emailTokenData);
 
 	emailTokenHelper.upsertEmailToken(contactTokenCln, emailToken,
-		cbkUpsertToken.bind(null, res));
+		cbkUpsertToken.bind(null, cbkRoute));
 };
 
 /**
- * Start point
+ * Start point - entire process for email token
  * @param {Object} contactTokenCln - collection with contact tokens (email, phone...)
  *        in this case - email token
  */
-exports.init = function (contactTokenCln, req, res) {
-	var email = req.body.email;
-	emailConfirmationHelper.generateAndSendToken(email,
-		cbkGenerateAndSend.bind(null, email, contactTokenCln, res));
+exports.handleEmailToken = function (contactTokenCln, email, cbkRoute) {
+	emailTokenSender.generateAndSendToken(email,
+		cbkGenerateAndSend.bind(null, email, contactTokenCln, cbkRoute));
 };
 
 module.exports = exports;

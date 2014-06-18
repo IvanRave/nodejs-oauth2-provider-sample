@@ -1,4 +1,4 @@
-/** @module helpers/email-confirmation-helper */
+/** @module helpers/email-token-sender */
 
 var appHelper = require('../helpers/app-helper');
 var uidHelper = require('../helpers/uid-helper');

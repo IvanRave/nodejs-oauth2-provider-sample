@@ -1,4 +1,4 @@
-/** @module helpers/lgr */
+/** @module helpers/lgr-helper */
 
 var winston = require('winston');
 

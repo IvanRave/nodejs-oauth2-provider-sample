@@ -22,7 +22,7 @@ var findByUserNameTest = function (authUserClnScope, done) {
 	// var demoUserData = {
 	// id : 123,
 	// username : 'Ivan',
-	// passClean : 'Rave',
+	// pwdClean : 'Rave',
 	// salt : 'qwerty'
 	// };
 
@@ -34,7 +34,7 @@ var findByUserNameTest = function (authUserClnScope, done) {
 };
 
 var findAndCheckTest = function (authUserClnScope, done) {
-	authUserHelper.findAndCheck(authUserClnScope.cln, 'Ivan', 'SuperPass', function (err, needUser) {
+	authUserHelper.findAndCheck(authUserClnScope.cln, 'Ivan', 'SuperPwd', function (err, needUser) {
 		if (err) {
 			throw err;
 		}

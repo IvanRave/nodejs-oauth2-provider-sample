@@ -1,24 +1,24 @@
-/** @module routes/register */
+/** @module helpers/register-handler */
 
-var lgr = require('../helpers/lgr-helper');
+//var lgr = require('../helpers/lgr-helper');
 var regUserHelper = require('../db/reg-user-helper');
 
-exports.init = function (req, res) {
-	lgr.info(req.body);
+exports.registerUser = function (authUserCln, emailTokenCln, regUserData, cbk) {
+  console.log(regUserData);
 
-	var validationErrors = regUserHelper.validateSchema(req.body);
+	var validationErrors = regUserHelper.validateSchema(regUserData);
 	if (validationErrors.length > 0) {
-		res.send(400, {
+		cbk(400, {
 			'validationErrors' : validationErrors
 		});
 
 		return;
 	}
 
-	var regUser = regUserHelper.createRegUser(req.body);
+	var regUser = regUserHelper.createRegUser(regUserData);
 
 	if (!regUserHelper.isValidPssConfirmation(regUser)) {
-		res.send(422, {
+		cbk(422, {
 			message : 'passwordConfirmationIsFailed'
 		});
 
@@ -32,7 +32,7 @@ exports.init = function (req, res) {
 	// email
 	// confirmation-code
 
-	res.send('register page' + JSON.stringify(regUser));
+	cbk(200, 'register page' + JSON.stringify(regUser));
 };
 
 module.exports = exports;

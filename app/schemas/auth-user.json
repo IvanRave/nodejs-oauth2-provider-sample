@@ -10,10 +10,10 @@
 		"salt" : {
 			"dataType" : "string"
 		},
-		"passHash" : {
+		"pwdHash" : {
 			"dataType" : "string"
 		},
-		"passClean" : {
+		"pwdClean" : {
 			"dataType" : "string"
 		}
 	}

@@ -57,11 +57,11 @@ var startApiService = function (authDb) {
 	// var demoUserData = {
 	// id : 123,
 	// username : 'Ivan',
-	// passClean : 'Rave',
+	// pwdClean : 'Rave',
 	// salt : 'qwerty'
 	// };
 
-	// demoUserData.passHash = cryptoHelper.encryptSha(demoUserData.passClean,
+	// demoUserData.pwdHash = cryptoHelper.encryptSha(demoUserData.pwdClean,
 	// demoUserData.salt);
 
 	// at this time only few clients,

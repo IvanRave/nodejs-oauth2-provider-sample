@@ -1,8 +1,8 @@
 /** @module routers/account-router */
 
 var appMdw = require('../mdw/app-mdw');
-var emailConfirmationRoute = require('../routes/email-confirmation');
-var registerRoute = require('../routes/register');
+var emailTokenHandler = require('../helpers/email-token-handler');
+var registerHandler = require('../helpers/register-handler');
 var lgr = require('../helpers/lgr-helper');
 
 var cbkPageLogin = function (req, res) {
@@ -69,16 +69,24 @@ exports.createRouter = function (express, passport, authDb) {
 		appMdw.ensureAuth,
 		cbkPageInfo);
 
-	var emailTokenCln = authDb.collection('emailToken');
-
 	// send email for approving
 	// if an user in the authUser table already ->
 	//        send this error - an email is already taken
-	accountRouter.post('/email-confirmation', emailConfirmationRoute.init.bind(null, emailTokenCln));
+	accountRouter.post('/email-confirmation', function (req, res) {
+		var emailTokenCln = authDb.collection('emailToken');
+		emailTokenHandler.handleEmailToken(emailTokenCln, req.body.email, function (resCode, resMsg) {
+			res.send(resCode, resMsg);
+		});
+	});
 
 	// send email, confirmationToken, password, passwordConfirmation
-	accountRouter.post('/register', registerRoute.init);
-	// check in the preRegUser table
+	accountRouter.post('/register', function (req, res) {
+		registerHandler.registerUser(req.body, function (resCode, resMsg) {
+			res.send(resCode, resMsg);
+		});
+	});
+	
+  // check in the preRegUser table
 	// if success, move to the authUser table
 	// login to the cabinet (password and email be inputed by the user)
 

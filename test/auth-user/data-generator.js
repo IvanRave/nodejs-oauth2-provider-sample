@@ -14,11 +14,11 @@ exports.generate = function (collection, next) {
 			id : 123,
 			username : 'Ivan',
 			salt : 'SuperSalt',
-			passHash : '',
-			passClean : 'SuperPass'
+			pwdHash : '',
+			pwdClean : 'SuperPwd'
 		};
 
-		demoUserData.passHash = cryptoHelper.encryptSha(demoUserData.passClean,
+		demoUserData.pwdHash = cryptoHelper.encryptSha(demoUserData.pwdClean,
 				demoUserData.salt);
 
 		collection.insert(demoUserData, next);

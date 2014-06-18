@@ -75,9 +75,9 @@ var cbkFindByUserName = function (username, password, next, err, needUserData) {
 		});
 	}
 
-	var sourcePassHash = cryptoHelper.encryptSha(password, needUser.salt);
+	var sourcePwdHash = cryptoHelper.encryptSha(password, needUser.salt);
 
-	if (sourcePassHash !== needUser.passHash) {
+	if (sourcePwdHash !== needUser.pwdHash) {
 		return next(null, false, {
 			message : 'wrongPassword'
 		});
