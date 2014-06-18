@@ -2,55 +2,63 @@
 
 // test: http POST http://localhost:1337/account/email-confirmation email=ivanrave@yandex.ru
 var emailConfirmationHelper = require('../helpers/email-confirmation-helper');
-var preUserHelper = require('../db/pre-user-helper');
+var emailTokenHelper = require('../db/email-token-helper');
 var appHelper = require('../helpers/app-helper');
 var lgr = require('../helpers/lgr-helper');
 
-var cbkUpsertPreUser = function (res, err) {
+var cbkUpsertToken = function (res, err) {
 	if (err) {
 		lgr.error(err.message);
-		res.send(500, 'preUserCanNotBeInserted');
+		res.send(500, 'emailTokenCanNotBeInserted');
 		return;
 	}
 
 	res.send();
 };
 
-var cbkGenerateAndSend = function (email, preUserCln, res, err, emailToken) {
+var cbkGenerateAndSend = function (email, contactTokenCln, res, err, contactTokenStr) {
 	if (err) {
 		res.send(422, {
 			message : err.message
 		});
+
 		return;
 	}
 
-	var preUserData = {
+	var emailTokenData = {
 		"email" : email,
-		"emailToken" : emailToken,
-    "created": appHelper.toInt(new Date().getTime() / 1000)
-		//"attemptCount" : 0 // try default
+		"token" : contactTokenStr,
+		"created" : appHelper.toInt(new Date().getTime() / 1000),
+		"tokenType" : "reg",
+		"attempt" : 1 // redefine during upserting
 	};
 
-	var validationErrors = preUserHelper.validateSchema(preUserData);
+	var validationErrors = emailTokenHelper.validateSchema(emailTokenData);
 
 	if (validationErrors.length > 0) {
 		// Show one by one errors
 		res.send(422, {
 			'validationErrors' : validationErrors
 		});
+
 		return;
 	}
 
-	var preUser = preUserHelper.createPreUser(preUserData);
+	var emailToken = emailTokenHelper.createEmailToken(emailTokenData);
 
-	preUserHelper.upsertPreUser(preUserCln, preUser,
-		cbkUpsertPreUser.bind(null, res));
+	emailTokenHelper.upsertEmailToken(contactTokenCln, emailToken,
+		cbkUpsertToken.bind(null, res));
 };
 
-exports.init = function (preUserCln, req, res) {
+/**
+ * Start point
+ * @param {Object} contactTokenCln - collection with contact tokens (email, phone...)
+ *        in this case - email token
+ */
+exports.init = function (contactTokenCln, req, res) {
 	var email = req.body.email;
 	emailConfirmationHelper.generateAndSendToken(email,
-		cbkGenerateAndSend.bind(null, email, preUserCln, res));
+		cbkGenerateAndSend.bind(null, email, contactTokenCln, res));
 };
 
 module.exports = exports;

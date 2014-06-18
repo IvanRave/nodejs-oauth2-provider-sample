@@ -69,12 +69,12 @@ exports.createRouter = function (express, passport, authDb) {
 		appMdw.ensureAuth,
 		cbkPageInfo);
 
-	var preUserCln = authDb.collection('preUser');
+	var emailTokenCln = authDb.collection('emailToken');
 
 	// send email for approving
 	// if an user in the authUser table already ->
 	//        send this error - an email is already taken
-	accountRouter.post('/email-confirmation', emailConfirmationRoute.init.bind(null, preUserCln));
+	accountRouter.post('/email-confirmation', emailConfirmationRoute.init.bind(null, emailTokenCln));
 
 	// send email, confirmationToken, password, passwordConfirmation
 	accountRouter.post('/register', registerRoute.init);

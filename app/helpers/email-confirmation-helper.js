@@ -30,11 +30,11 @@ exports.generateAndSendToken = function (email, next) {
 	}
 
 	// Generate a confirmation code
-	var confirmationToken = uidHelper.generate(8);
+	var confirmationToken = uidHelper.generateNumber(5);
 	mailHelper.sendMail({
 		to : email,
-		subject : 'Oil auth: confirmation code',
-		text : 'Code: ' + confirmationToken
+		subject : 'Oil authentication',
+		text : 'To confirm your email please use this verification code: ' + confirmationToken
 	}, cbkSendMail.bind(null, confirmationToken, next));
 };
 

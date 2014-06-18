@@ -1,16 +1,22 @@
 {
-	"table" : "preUser",
+	"table" : "emailToken",
 	"columns" : {
 		"email" : {
 			"dataType" : "string",
 			"maxLength" : 320
 		},
-		"emailToken" : {
+		"token" : {
 			"dataType" : "string",
 			"maxLength" : 50
 		},
 		"created" : {
 			"dataType" : "number"
+		},
+		"attempt" : {
+			"dataType" : "number"
+		},
+		"tokenType" : {
+			"dataType" : "string"
 		}
 	}
 }
