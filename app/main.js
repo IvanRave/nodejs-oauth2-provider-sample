@@ -1,4 +1,7 @@
-/** @module main */
+/**
+* @module main 
+* @todo #23! Register user
+*/
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -53,16 +56,6 @@ var startApiService = function (authDb) {
 
 	passport.serializeUser(srzHelper.serialize);
 	passport.deserializeUser(srzHelper.deserialize);
-
-	// var demoUserData = {
-	// id : 123,
-	// username : 'Ivan',
-	// pwdClean : 'Rave',
-	// salt : 'qwerty'
-	// };
-
-	// demoUserData.pwdHash = cryptoHelper.encryptSha(demoUserData.pwdClean,
-	// demoUserData.salt);
 
 	// at this time only few clients,
 	// no database

@@ -1,13 +1,32 @@
 {
 	"table" : "authUser",
 	"columns" : {
-		"id" : {
-			"dataType" : "number"
-		},
-		"username" : {
+		"uname" : {
 			"dataType" : "string"
 		},
-		"salt" : {
+		"lname" : {
+			"dataType" : "string"
+		},
+		"fname" : {
+			"dataType" : "string"
+		},
+		"mname" : {
+			"dataType" : "string"
+		},
+		"email" : {
+			"dataType" : "string"
+		},
+		"phone" : {
+			"dataType" : "string",
+			"isNullable" : true
+		},
+		"scrtQstn" : {
+			"dataType" : "string"
+		},
+		"scrtAnwr" : {
+			"dataType" : "string"
+		},
+		"pwdSalt" : {
 			"dataType" : "string"
 		},
 		"pwdHash" : {
@@ -15,6 +34,9 @@
 		},
 		"pwdClean" : {
 			"dataType" : "string"
+		},
+		"created" : {
+			"dataType" : "number"
 		}
 	}
 }

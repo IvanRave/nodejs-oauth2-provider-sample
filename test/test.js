@@ -44,9 +44,9 @@ describe('main enter', function () {
 
 	describe('emailTokenSuite',
 		require('./email-token/email-token-suite').init.bind(null, authDbScope));
-    
-  // describe('registerUserSuite',
-		// require('./register-user/register-user-suite').init.bind(null, authDbScope));
+
+	// describe('registerUserSuite',
+	// require('./register-user/register-user-suite').init.bind(null, authDbScope));
 
 	after(cbkAfter.bind(null, authDbScope));
 });

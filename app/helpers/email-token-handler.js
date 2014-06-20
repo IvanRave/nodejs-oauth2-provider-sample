@@ -6,14 +6,18 @@ var emailTokenHelper = require('../db/email-token-helper');
 var appHelper = require('../helpers/app-helper');
 var lgr = require('../helpers/lgr-helper');
 
-var cbkUpsertToken = function (cbkRoute, err) {
+// TODO: #14! remove contact token str in release version
+var cbkUpsertToken = function (cbkRoute, contactTokenStr, err) {
 	if (err) {
 		lgr.error(err.message);
 		cbkRoute(500, 'emailTokenCanNotBeInserted');
 		return;
 	}
 
-	cbkRoute(200);
+  // TODO: remove message from release version. (only send to email)
+	cbkRoute(200, {
+		message : contactTokenStr
+	});
 };
 
 var cbkGenerateAndSend = function (email, contactTokenCln, cbkRoute, err, contactTokenStr) {
@@ -47,7 +51,7 @@ var cbkGenerateAndSend = function (email, contactTokenCln, cbkRoute, err, contac
 	var emailToken = emailTokenHelper.createEmailToken(emailTokenData);
 
 	emailTokenHelper.upsertEmailToken(contactTokenCln, emailToken,
-		cbkUpsertToken.bind(null, cbkRoute));
+		cbkUpsertToken.bind(null, cbkRoute, contactTokenStr));
 };
 
 /**

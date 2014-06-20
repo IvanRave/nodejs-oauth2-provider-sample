@@ -11,15 +11,22 @@ exports.generate = function (collection, next) {
 		}
 
 		var demoUserData = {
-			id : 123,
-			username : 'Ivan',
-			salt : 'SuperSalt',
+			fname : 'Ivan',
+			lname : 'Rave',
+			mname : 'Ivanich',
+			uname : 'Ivan Rave',
+			email : 'some@some.ru',
+			phone : '123435354',
+			pwdSalt : 'SuperSalt',
 			pwdHash : '',
-			pwdClean : 'SuperPwd'
+			pwdClean : 'SuperPwd',
+			scrtQstn : 'Favourite book',
+			scrtAnwr : 'Moomy',
+			created : 123123
 		};
 
 		demoUserData.pwdHash = cryptoHelper.encryptSha(demoUserData.pwdClean,
-				demoUserData.salt);
+				demoUserData.pwdSalt);
 
 		collection.insert(demoUserData, next);
 	});

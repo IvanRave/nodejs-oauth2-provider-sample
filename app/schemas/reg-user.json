@@ -9,10 +9,10 @@
 			"dataType" : "string",
 			"maxLength" : 50
 		},
-		"pss" : {
+		"pwd" : {
 			"dataType" : "string"
 		},
-		"pssConfirmation" : {
+		"pwdConfirmation" : {
 			"dataType" : "string"
 		}
 	}

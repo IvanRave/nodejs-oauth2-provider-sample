@@ -20,19 +20,21 @@ var validationHelper = require('../helpers/validation-helper');
  *     We need to send db (or storage array) in every method
  *     db needs to be opened before executing
  */
-var findByUserName = function (authUserCln, username, next) {
+var findByUname = function (authUserCln, uname, next) {
 	authUserCln.findOne({
-		username : username
+		uname : uname
 	}, next);
 };
 
-exports.findByUserName = findByUserName;
-
-exports.findById = function (authUserCln, id, next) {
+var findByEmail = function (authUserCln, email, next) {
 	authUserCln.findOne({
-		id : id
-	}, next); // next(err, item)
+		email : email
+	}, next);
 };
+
+exports.findByUname = findByUname;
+
+exports.findByEmail = findByEmail;
 
 /**
  * Insert an auth user
@@ -45,7 +47,7 @@ exports.insertAuthUser = function (authUserCln, authUserItem, next) {
 	authUserCln.insert(authUserItem, next);
 };
 
-var cbkFindByUserName = function (username, password, next, err, needUserData) {
+var checkResultUser = function (password, next, err, needUserData) {
 	if (err) {
 		return next(err);
 	}
@@ -69,13 +71,7 @@ var cbkFindByUserName = function (username, password, next, err, needUserData) {
 	var needUser = new BaseModel(needUserData, authUserSchema);
 	console.log(JSON.stringify(needUser));
 
-	if (username !== needUser.username) {
-		return next(null, false, {
-			message : 'wrongUsername'
-		});
-	}
-
-	var sourcePwdHash = cryptoHelper.encryptSha(password, needUser.salt);
+	var sourcePwdHash = cryptoHelper.encryptSha(password, needUser.pwdSalt);
 
 	if (sourcePwdHash !== needUser.pwdHash) {
 		return next(null, false, {
@@ -86,10 +82,12 @@ var cbkFindByUserName = function (username, password, next, err, needUserData) {
 	return next(null, needUser);
 };
 
-exports.findAndCheck = function (authUserCln, username, password, next) {
-	// Find by user name
-	findByUserName(authUserCln, username,
-		cbkFindByUserName.bind(null, username, password, next));
+/**
+ * Find an user by email and check password
+ */
+exports.findAndCheck = function (authUserCln, email, password, next) {
+	findByEmail(authUserCln, email,
+		checkResultUser.bind(null, password, next));
 };
 
 module.exports = exports;

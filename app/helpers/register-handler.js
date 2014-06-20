@@ -2,24 +2,13 @@
 
 //var lgr = require('../helpers/lgr-helper');
 var regUserHelper = require('../db/reg-user-helper');
+var emailTokenHelper = require('../db/email-token-helper');
 
-exports.registerUser = function (authUserCln, emailTokenCln, regUserData, cbk) {
-  console.log(regUserData);
-
-	var validationErrors = regUserHelper.validateSchema(regUserData);
-	if (validationErrors.length > 0) {
-		cbk(400, {
-			'validationErrors' : validationErrors
-		});
-
-		return;
-	}
-
-	var regUser = regUserHelper.createRegUser(regUserData);
-
-	if (!regUserHelper.isValidPssConfirmation(regUser)) {
-		cbk(422, {
-			message : 'passwordConfirmationIsFailed'
+var cbkRemoveEmailToken = function (cbk, err) {
+	if (err) {
+		// TODO: #22! log error
+		cbk(500, {
+			message : err.message
 		});
 
 		return;
@@ -32,7 +21,71 @@ exports.registerUser = function (authUserCln, emailTokenCln, regUserData, cbk) {
 	// email
 	// confirmation-code
 
-	cbk(200, 'register page' + JSON.stringify(regUser));
+	cbk(200, 'register successfull');
+};
+
+/**
+ * Callback for finded emailToken
+ */
+var cbkFindEmailToken = function (emailTokenCln, regUser, cbk, err, emailTokenResult) {
+	if (err) {
+		// TODO: #22! log error
+		cbk(500, {
+			message : err.message
+		});
+
+		return;
+	}
+
+	if (!emailTokenResult) {
+		cbk(422, {
+			message : 'emailTokenIsNotExists'
+		});
+
+		return;
+	}
+
+	// Check email token
+	if (!regUserHelper.isEmailTokenValid(regUser, emailTokenResult.token)) {
+		cbk(422, {
+			message : 'emailTokenIsNotValid'
+		});
+
+		return;
+	}
+
+  // TODO: #23! Insert auth user
+  
+	// Then: remove emailtoken
+	emailTokenHelper.removeById(emailTokenCln, emailTokenResult._id,
+		cbkRemoveEmailToken.bind(null, cbk));
+};
+
+exports.registerUser = function (authUserCln, emailTokenCln, regUserData, cbk) {
+	console.log(regUserData);
+
+	var validationErrors = regUserHelper.validateSchema(regUserData);
+	if (validationErrors.length > 0) {
+		cbk(400, {
+			'validationErrors' : validationErrors
+		});
+
+		return;
+	}
+
+	var regUser = regUserHelper.createRegUser(regUserData);
+
+	if (!regUserHelper.isValidPwdConfirmation(regUser)) {
+		cbk(422, {
+			message : 'passwordConfirmationIsFailed'
+		});
+
+		return;
+	}
+
+	// Find real token from database
+	emailTokenHelper.findByEmail(emailTokenCln, regUser.email,
+		cbkFindEmailToken.bind(null, emailTokenCln, regUser, cbk));
 };
 
 module.exports = exports;

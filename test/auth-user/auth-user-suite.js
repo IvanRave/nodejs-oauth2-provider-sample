@@ -9,32 +9,19 @@ var authUserGenerator = require('./data-generator');
 // Our demo id for an user
 // Demo user can't be in a real storage
 
-var findByUserNameTest = function (authUserClnScope, done) {
-	authUserHelper.findByUserName(authUserClnScope.cln, 'Ivan', function (err, authUser) {
+var findByEmailTest = function (authUserClnScope, done) {
+	authUserHelper.findByEmail(authUserClnScope.cln, 'some@some.ru', function (err, authUser) {
 		if (err) {
 			return done(err);
 		}
 
-		assert.equal(authUser.id, 123);
+		assert.equal(authUser.fname, 'Ivan');
 		done();
 	});
-
-	// var demoUserData = {
-	// id : 123,
-	// username : 'Ivan',
-	// pwdClean : 'Rave',
-	// salt : 'qwerty'
-	// };
-
-	// reportGenerator.startGenerate(demoDta, function (msg, statusCode) {
-	// console.log(msg);
-	// assert.equal(statusCode, 200);
-	// done();
-	// });
 };
 
 var findAndCheckTest = function (authUserClnScope, done) {
-	authUserHelper.findAndCheck(authUserClnScope.cln, 'Ivan', 'SuperPwd', function (err, needUser) {
+	authUserHelper.findAndCheck(authUserClnScope.cln, 'some@some.ru', 'SuperPwd', function (err, needUser) {
 		if (err) {
 			throw err;
 		}
@@ -47,25 +34,10 @@ var findAndCheckTest = function (authUserClnScope, done) {
 		assert.notEqual(needUser, false);
 
 		// With id = 123
-		assert.equal(needUser.id, 123);
+		assert.equal(needUser.fname, 'Ivan');
 
 		done();
 	});
-};
-
-var cbkFindByIdTest = function (done, errFind, item) {
-	if (errFind) {
-		throw errFind;
-	}
-
-	console.log('items', item);
-	assert.notEqual(item, null);
-	done();
-};
-
-var findByIdTest = function (authUserClnScope, done) {
-	authUserHelper.findById(authUserClnScope.cln, 123,
-		cbkFindByIdTest.bind(null, done));
 };
 
 var cbkGenerateAuthUser = function (collection, done, errGenerate) {
@@ -95,9 +67,8 @@ exports.init = function (authDbScope) {
 	// Generate some fake data
 	before(cbkBefore.bind(null, authDbScope, authUserClnScope));
 
-	it('findByUserNameTest', findByUserNameTest.bind(null, authUserClnScope));
+	it('findByEmailTest', findByEmailTest.bind(null, authUserClnScope));
 	it('findAndCheckTest', findAndCheckTest.bind(null, authUserClnScope));
-	it('findByIdTest', findByIdTest.bind(null, authUserClnScope));
 
 	after(cbkAfter);
 };

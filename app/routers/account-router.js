@@ -81,12 +81,14 @@ exports.createRouter = function (express, passport, authDb) {
 
 	// send email, confirmationToken, password, passwordConfirmation
 	accountRouter.post('/register', function (req, res) {
-		registerHandler.registerUser(req.body, function (resCode, resMsg) {
+    var authUserCln = authDb.collection('authUser');
+		var emailTokenCln = authDb.collection('emailToken');
+		registerHandler.registerUser(authUserCln, emailTokenCln, req.body, function (resCode, resMsg) {
 			res.send(resCode, resMsg);
 		});
 	});
-	
-  // check in the preRegUser table
+
+	// check in the preRegUser table
 	// if success, move to the authUser table
 	// login to the cabinet (password and email be inputed by the user)
 

@@ -28,6 +28,24 @@ exports.upsertEmailToken = function (contactTokenCln, emailToken, next) {
 	}, next);
 };
 
+/**
+ * Find email token by email (first occurence)
+ */
+exports.findByEmail = function (emailTokenCln, email, next) {
+	emailTokenCln.findOne({
+		email : email
+	}, next);
+};
+
+/**
+ * Remove email token by id
+ */
+exports.removeById = function (emailTokenCln, id, next) {
+	emailTokenCln.remove({
+		_id : id
+	}, next);
+};
+
 exports.validateSchema = function (emailTokenData) {
 	return validationHelper.validate(emailTokenData, emailTokenSchema);
 };
