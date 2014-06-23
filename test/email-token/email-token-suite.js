@@ -5,23 +5,24 @@ var appPath = '../../app';
 var emailTokenHandler = require(appPath + '/helpers/email-token-handler');
 var registerHandler = require(appPath + '/helpers/register-handler');
 
-var globalEmailToken;
+var globalEmailToken = '77777';
 
 var emailTokenTest = function (clnScope, done) {
-	emailTokenHandler.handleEmailToken(clnScope.cln, 'some@some.ru', function (resultCode, resultMsg) {
-		console.log('resultMsg', resultMsg.message);
+	emailTokenHandler.handleEmailToken(clnScope.cln,
+		'some@some.ru',
+		globalEmailToken,
+		function (resultCode) {
 		assert.equal(resultCode, 200);
-    globalEmailToken = resultMsg.message;
 		done();
 	});
 };
 
 var registerUserTest = function (authUserClnScope, emailTokenClnScope, done) {
 	registerHandler.registerUser(authUserClnScope.cln, emailTokenClnScope.cln, {
-		email: 'some@some.ru',
-    emailToken: globalEmailToken,
-    pwd: 'SuperPwd',
-    pwdConfirmation: 'SuperPwd'
+		email : 'some@some.ru',
+		emailToken : globalEmailToken,
+		pwd : 'SuperPwd',
+		pwdConfirmation : 'SuperPwd'
 	}, function (resultCode, resultMsg) {
 		console.log('resultMsg', resultMsg);
 		assert.equal(resultCode, 200);
@@ -34,7 +35,7 @@ var cbkBefore = function (authDbScope, authUserClnScope, emailTokenClnScope, don
 
 	authUserClnScope.cln = authDbScope.db.collection('authUser');
 	emailTokenClnScope.cln = authDbScope.db.collection('emailToken');
-  
+
 	done();
 };
 
@@ -58,11 +59,11 @@ exports.init = function (authDbScope) {
 	// Generate some fake data
 	before(cbkBefore.bind(null, authDbScope, authUserClnScope, emailTokenClnScope));
 
-  // First generate emailToken
+	// First generate emailToken
 	it('emailTokenTest', emailTokenTest.bind(null, emailTokenClnScope));
-  
-  // Second try to register an user
-	it('registerUserTest', registerUserTest.bind(null, authUserClnScope, emailTokenClnScope));  
+
+	// Second try to register an user
+	it('registerUserTest', registerUserTest.bind(null, authUserClnScope, emailTokenClnScope));
 
 	after(cbkAfter);
 };

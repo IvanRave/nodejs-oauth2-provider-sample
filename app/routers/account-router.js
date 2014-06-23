@@ -3,6 +3,7 @@
 var appMdw = require('../mdw/app-mdw');
 var emailTokenHandler = require('../helpers/email-token-handler');
 var registerHandler = require('../helpers/register-handler');
+var uidHelper = require('../helpers/uid-helper');
 var lgr = require('../helpers/lgr-helper');
 
 var cbkPageLogin = function (req, res) {
@@ -74,14 +75,21 @@ exports.createRouter = function (express, passport, authDb) {
 	//        send this error - an email is already taken
 	accountRouter.post('/email-confirmation', function (req, res) {
 		var emailTokenCln = authDb.collection('emailToken');
-		emailTokenHandler.handleEmailToken(emailTokenCln, req.body.email, function (resCode, resMsg) {
+
+		// Generate a confirmation code
+		var confirmationToken = uidHelper.generateNumber(5);
+
+		emailTokenHandler.handleEmailToken(emailTokenCln,
+			req.body.email,
+			confirmationToken,
+			function (resCode, resMsg) {
 			res.send(resCode, resMsg);
 		});
 	});
 
 	// send email, confirmationToken, password, passwordConfirmation
 	accountRouter.post('/register', function (req, res) {
-    var authUserCln = authDb.collection('authUser');
+		var authUserCln = authDb.collection('authUser');
 		var emailTokenCln = authDb.collection('emailToken');
 		registerHandler.registerUser(authUserCln, emailTokenCln, req.body, function (resCode, resMsg) {
 			res.send(resCode, resMsg);

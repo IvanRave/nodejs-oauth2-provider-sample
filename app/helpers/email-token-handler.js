@@ -6,18 +6,14 @@ var emailTokenHelper = require('../db/email-token-helper');
 var appHelper = require('../helpers/app-helper');
 var lgr = require('../helpers/lgr-helper');
 
-// TODO: #14! remove contact token str in release version
-var cbkUpsertToken = function (cbkRoute, contactTokenStr, err) {
+var cbkUpsertToken = function (cbkRoute, err) {
 	if (err) {
 		lgr.error(err.message);
 		cbkRoute(500, 'emailTokenCanNotBeInserted');
 		return;
 	}
 
-  // TODO: remove message from release version. (only send to email)
-	cbkRoute(200, {
-		message : contactTokenStr
-	});
+	cbkRoute(200);
 };
 
 var cbkGenerateAndSend = function (email, contactTokenCln, cbkRoute, err, contactTokenStr) {
@@ -51,7 +47,7 @@ var cbkGenerateAndSend = function (email, contactTokenCln, cbkRoute, err, contac
 	var emailToken = emailTokenHelper.createEmailToken(emailTokenData);
 
 	emailTokenHelper.upsertEmailToken(contactTokenCln, emailToken,
-		cbkUpsertToken.bind(null, cbkRoute, contactTokenStr));
+		cbkUpsertToken.bind(null, cbkRoute));
 };
 
 /**
@@ -59,8 +55,8 @@ var cbkGenerateAndSend = function (email, contactTokenCln, cbkRoute, err, contac
  * @param {Object} contactTokenCln - collection with contact tokens (email, phone...)
  *        in this case - email token
  */
-exports.handleEmailToken = function (contactTokenCln, email, cbkRoute) {
-	emailTokenSender.generateAndSendToken(email,
+exports.handleEmailToken = function (contactTokenCln, email, confirmationToken, cbkRoute) {
+	emailTokenSender.sendTokenToEmail(email, confirmationToken,
 		cbkGenerateAndSend.bind(null, email, contactTokenCln, cbkRoute));
 };
 

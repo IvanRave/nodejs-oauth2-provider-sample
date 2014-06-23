@@ -1,7 +1,6 @@
 /** @module helpers/email-token-sender */
 
 var appHelper = require('../helpers/app-helper');
-var uidHelper = require('../helpers/uid-helper');
 var lgr = require('../helpers/lgr-helper');
 var mailHelper = require('../helpers/mail-helper');
 
@@ -18,7 +17,7 @@ var cbkSendMail = function (confirmationToken, next, err) {
 /**
  * Send email to approve
  */
-exports.generateAndSendToken = function (email, next) {
+exports.sendTokenToEmail = function (email, confirmationToken, next) {
 	if (!email) {
 		next(new Error('emailIsRequired'));
 		return;
@@ -29,8 +28,6 @@ exports.generateAndSendToken = function (email, next) {
 		return;
 	}
 
-	// Generate a confirmation code
-	var confirmationToken = uidHelper.generateNumber(5);
 	mailHelper.sendMail({
 		to : email,
 		subject : 'Oil authentication',
