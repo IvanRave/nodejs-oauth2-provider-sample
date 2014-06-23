@@ -10,6 +10,8 @@ var BaseModel = require('../models/base');
 var authUserSchema = require('../schemas/auth-user');
 var cryptoHelper = require('../helpers/crypto-helper');
 var validationHelper = require('../helpers/validation-helper');
+var appHelper = require('../helpers/app-helper');
+var uidHelper = require('../helpers/uid-helper');
 
 /*
  * Find an authUser
@@ -32,20 +34,73 @@ var findByEmail = function (authUserCln, email, next) {
 	}, next);
 };
 
+var createAuthUser = function (authUserData) {
+	return new BaseModel(authUserData, authUserSchema);
+};
+
+exports.createFromRegUser = function (regUser) {
+	var authUserData = {
+		uname : regUser.lname + ' ' + regUser.fname + (regUser.mname ? (' ' + regUser.mname) : ''),
+		lname : regUser.lname,
+		fname : regUser.fname,
+		mname : regUser.mname,
+		email : regUser.email,
+		phone : regUser.phone,
+		secretQstn : regUser.secretQstn,
+		secretAnswer : regUser.secretAnswer,
+		pwdClean : regUser.pwd,
+		pwdSalt : 'SuperSalt', // TODO: #32! generate
+		created : appHelper.toInt(new Date().getTime() / 1000)
+	};
+
+	authUserData.pwdHash = cryptoHelper.encryptSha(authUserData.pwdClean, authUserData.pwdSalt);
+
+	return createAuthUser(authUserData);
+};
+
 exports.findByUname = findByUname;
 
 exports.findByEmail = findByEmail;
 
+var cbkInsertAuthUser = function (authUserCln, authUserItem, retryCount, next, err) {
+	if (err) {
+		// if (err.msg ==' duplicate')
+		// again req
+		if (err.name === 'MongoError' && err.code === 11000) {
+			// retry again
+			insertAuthUser(authUserCln, authUserItem, next, retryCount, true);
+			return;
+		}
+	}
+
+	next(err);
+};
+
 /**
  * Insert an auth user
  */
-exports.insertAuthUser = function (authUserCln, authUserItem, next) {
-	// Set some default values
-	// ...
+var insertAuthUser = function (authUserCln, authUserItem, next, retryCount) {
+	if (!retryCount) {
+		retryCount = 1;
+	} else {
+		retryCount += 1;
+	}
+
+	// authUserItem._id = 329342034; // testing duplicate
+
+	if (retryCount > 10) {
+		// TODO: #22! log error
+		next(new Error('maxRetriesDuplicateId')); // Please try again
+		return;
+	}
+
+	authUserItem._id = uidHelper.generateDbId();
 
 	// Insert a record
-	authUserCln.insert(authUserItem, next);
+	authUserCln.insert(authUserItem, cbkInsertAuthUser.bind(null, authUserCln, authUserItem, retryCount, next));
 };
+
+exports.insertAuthUser = insertAuthUser;
 
 var checkResultUser = function (password, next, err, needUserData) {
 	if (err) {
@@ -68,7 +123,7 @@ var checkResultUser = function (password, next, err, needUserData) {
 		});
 	}
 
-	var needUser = new BaseModel(needUserData, authUserSchema);
+	var needUser = createAuthUser(needUserData);
 	console.log(JSON.stringify(needUser));
 
 	var sourcePwdHash = cryptoHelper.encryptSha(password, needUser.pwdSalt);

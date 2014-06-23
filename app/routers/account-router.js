@@ -77,7 +77,7 @@ exports.createRouter = function (express, passport, authDb) {
 		var emailTokenCln = authDb.collection('emailToken');
 
 		// Generate a confirmation code
-		var confirmationToken = uidHelper.generateNumber(5);
+		var confirmationToken = uidHelper.generateNumberStr(5);
 
 		emailTokenHandler.handleEmailToken(emailTokenCln,
 			req.body.email,

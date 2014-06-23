@@ -5,34 +5,41 @@
 			"dataType" : "string"
 		},
 		"lname" : {
-			"dataType" : "string"
+			"dataType" : "string",
+			"maxLength" : 255
 		},
 		"fname" : {
-			"dataType" : "string"
+			"dataType" : "string",
+			"maxLength" : 255
 		},
 		"mname" : {
-			"dataType" : "string"
+			"dataType" : "string",
+			"maxLength" : 255,
+			"isNullable" : true
 		},
 		"email" : {
-			"dataType" : "string"
+			"dataType" : "string",
+      "maxLength" : 320
 		},
 		"phone" : {
 			"dataType" : "string",
 			"isNullable" : true
 		},
-		"scrtQstn" : {
-			"dataType" : "string"
+		"secretQstn" : {
+			"dataType" : "string",
+			"maxLength" : 255
 		},
-		"scrtAnwr" : {
+		"secretAnswer" : {
+			"dataType" : "string",
+			"maxLength" : 255
+		},
+    "pwdClean" : {
 			"dataType" : "string"
 		},
 		"pwdSalt" : {
 			"dataType" : "string"
 		},
 		"pwdHash" : {
-			"dataType" : "string"
-		},
-		"pwdClean" : {
 			"dataType" : "string"
 		},
 		"created" : {

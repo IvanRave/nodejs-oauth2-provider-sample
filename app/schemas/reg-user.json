@@ -1,9 +1,34 @@
 {
 	"table" : "regUser",
 	"columns" : {
+		"lname" : {
+			"dataType" : "string",
+			"maxLength" : 255
+		},
+		"fname" : {
+			"dataType" : "string",
+			"maxLength" : 255
+		},
+		"mname" : {
+			"dataType" : "string",
+			"maxLength" : 255,
+			"isNullable" : true
+		},
 		"email" : {
 			"dataType" : "string",
 			"maxLength" : 320
+		},
+		"phone" : {
+			"dataType" : "string",
+			"isNullable" : true
+		},
+    "secretQstn" : {
+			"dataType" : "string",
+			"maxLength" : 255
+		},
+		"secretAnswer" : {
+			"dataType" : "string",
+			"maxLength" : 255
 		},
 		"emailToken" : {
 			"dataType" : "string",

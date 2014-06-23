@@ -22,7 +22,12 @@ var registerUserTest = function (authUserClnScope, emailTokenClnScope, done) {
 		email : 'some@some.ru',
 		emailToken : globalEmailToken,
 		pwd : 'SuperPwd',
-		pwdConfirmation : 'SuperPwd'
+		pwdConfirmation : 'SuperPwd',
+		lname : 'Rave',
+		fname : 'Ivan',
+		mname : 'Ivanich',
+		secretQstn : 'Favorite color',
+		secretAnswer : 'Lime'
 	}, function (resultCode, resultMsg) {
 		console.log('resultMsg', resultMsg);
 		assert.equal(resultCode, 200);

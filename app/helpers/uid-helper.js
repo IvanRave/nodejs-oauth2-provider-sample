@@ -40,13 +40,21 @@ exports.generate = function (len) {
 /**
  * Return a random string with numbers
  *
- *     utils.generateNumber(5);
+ *     utils.generateNumberStr(5);
  *     // => "32452"
  * @param {Number} len
  * @return {String}
  */
-exports.generateNumber = function (len) {
+exports.generateNumberStr = function (len) {
 	return generateByAlphabet('0123456789', len);
+};
+
+/**
+ * Random integer, 32-bit with constant length, and no-zero first
+ * @return {Number}
+ */
+exports.generateDbId = function () {
+	return getRandomInt(100000000, 999999999);
 };
 
 module.exports = exports;

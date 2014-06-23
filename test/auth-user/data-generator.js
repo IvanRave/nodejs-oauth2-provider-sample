@@ -1,35 +1,30 @@
 /** @module auth-user/data-generator */
 
-var cryptoHelper = require('../../app/helpers/crypto-helper');
+var appRoot = '../../app/';
 
-exports.generate = function (collection, next) {
-	// Clean before generating
-	// If clean after this test, may be not cleaned (if some error occurs during the test)
-	collection.remove({}, function (errClear) {
-		if (errClear) {
-			next(errClear);
-		}
+var cryptoHelper = require(appRoot + 'helpers/crypto-helper');
 
-		var demoUserData = {
-			fname : 'Ivan',
-			lname : 'Rave',
-			mname : 'Ivanich',
-			uname : 'Ivan Rave',
-			email : 'some@some.ru',
-			phone : '123435354',
-			pwdSalt : 'SuperSalt',
-			pwdHash : '',
-			pwdClean : 'SuperPwd',
-			scrtQstn : 'Favourite book',
-			scrtAnwr : 'Moomy',
-			created : 123123
-		};
+exports.generate = function () {
 
-		demoUserData.pwdHash = cryptoHelper.encryptSha(demoUserData.pwdClean,
-				demoUserData.pwdSalt);
+	var demoUserData = {
+		fname : 'Ivan',
+		lname : 'Rave',
+		mname : 'Ivanich',
+		uname : 'Ivan Rave',
+		email : 'some@some.ru',
+		phone : '123435354',
+		pwdSalt : 'SuperSalt',
+		pwdHash : '',
+		pwdClean : 'SuperPwd',
+		secretQstn : 'Favourite book',
+		secretAnswer : 'Moomy',
+		created : 123123
+	};
 
-		collection.insert(demoUserData, next);
-	});
+	demoUserData.pwdHash = cryptoHelper.encryptSha(demoUserData.pwdClean,
+			demoUserData.pwdSalt);
+
+  return demoUserData;
 };
 
 module.exports = exports;

@@ -40,16 +40,24 @@ var findAndCheckTest = function (authUserClnScope, done) {
 	});
 };
 
-var cbkGenerateAuthUser = function (collection, done, errGenerate) {
-	done(errGenerate);
+var cbkCleanAuthUsers = function (collection, done, errClear) {
+	if (errClear) {
+		done(errClear);
+		return;
+	}
+
+	var demoUserData = authUserGenerator.generate();
+
+	authUserHelper.insertAuthUser(collection, demoUserData, done);
 };
 
 var cbkBefore = function (authDbScope, authUserClnScope, done) {
 	console.log('start auth-user test');
 	authUserClnScope.cln = authDbScope.db.collection('authUser');
 
-	authUserGenerator.generate(authUserClnScope.cln,
-		cbkGenerateAuthUser.bind(null, authUserClnScope.cln, done));
+	// Clean before generating
+	// If clean after this test, may be not cleaned (if some error occurs during the test)
+	authUserClnScope.cln.remove({}, cbkCleanAuthUsers.bind(null, authUserClnScope.cln, done));
 };
 
 var cbkAfter = function (done) {
