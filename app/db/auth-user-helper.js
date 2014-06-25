@@ -62,24 +62,24 @@ exports.findByUname = findByUname;
 
 exports.findByEmail = findByEmail;
 
-var cbkInsertAuthUser = function (authUserCln, authUserItem, retryCount, next, err) {
+function cbkInsertAuthUser(authUserCln, authUserItem, retryCount, next, err) {
 	if (err) {
 		// if (err.msg ==' duplicate')
 		// again req
 		if (err.name === 'MongoError' && err.code === 11000) {
 			// retry again
-			insertAuthUser(authUserCln, authUserItem, next, retryCount, true);
+			exports.insertAuthUser(authUserCln, authUserItem, next, retryCount, true);
 			return;
 		}
 	}
 
 	next(err);
-};
+}
 
 /**
  * Insert an auth user
  */
-var insertAuthUser = function (authUserCln, authUserItem, next, retryCount) {
+function insertAuthUser(authUserCln, authUserItem, next, retryCount) {
 	if (!retryCount) {
 		retryCount = 1;
 	} else {
@@ -98,7 +98,7 @@ var insertAuthUser = function (authUserCln, authUserItem, next, retryCount) {
 
 	// Insert a record
 	authUserCln.insert(authUserItem, cbkInsertAuthUser.bind(null, authUserCln, authUserItem, retryCount, next));
-};
+}
 
 exports.insertAuthUser = insertAuthUser;
 

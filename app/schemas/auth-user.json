@@ -34,7 +34,8 @@
 			"maxLength" : 255
 		},
     "pwdClean" : {
-			"dataType" : "string"
+			"dataType" : "string",
+      "maxLength": 255
 		},
 		"pwdSalt" : {
 			"dataType" : "string"

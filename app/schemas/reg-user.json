@@ -22,7 +22,7 @@
 			"dataType" : "string",
 			"isNullable" : true
 		},
-    "secretQstn" : {
+		"secretQstn" : {
 			"dataType" : "string",
 			"maxLength" : 255
 		},
@@ -32,13 +32,15 @@
 		},
 		"emailToken" : {
 			"dataType" : "string",
-			"maxLength" : 50
+			"maxLength" : 255
 		},
 		"pwd" : {
-			"dataType" : "string"
+			"dataType" : "string",
+			"maxLength" : 255
 		},
 		"pwdConfirmation" : {
-			"dataType" : "string"
+			"dataType" : "string",
+			"maxLength" : 255
 		}
 	}
 }

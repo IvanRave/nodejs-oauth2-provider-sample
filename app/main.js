@@ -5,7 +5,6 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
-var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var expressSession = require('express-session');
 var passport = require('passport');
@@ -39,10 +38,11 @@ var cbkListen = function () {
 
 var startApiService = function (authDb) {
 	var app = express();
+  app.use(express.static(process.cwd() + '/app/public'));
 	app.set('view engine', 'ejs');
 	// views The view directory path, defaulting to "process.cwd() + '/views'"
 	app.set('views', process.cwd() + '/app/views');
-	app.use(favicon(process.cwd() + '/app/public/favicon.ico'));
+	//app.use(favicon(process.cwd() + '/app/public/favicon.ico'));
 	app.use(bodyParser());
 	app.use(cookieParser()); // required before session.
 	app.use(expressSession({
