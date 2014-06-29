@@ -17,7 +17,19 @@ var emailTokenTest = function (clnScope, done) {
 	});
 };
 
-var registerUserTest = function (authUserClnScope, emailTokenClnScope, done) {
+var cbkSuccessRegister = function (done, resultCode, resultObj) {
+	console.log(resultObj);
+	assert.equal(resultCode, 200);
+	done();
+};
+
+var cbkEmailIsAlreadyTaken = function (done, resultCode, resultObj) {
+	assert(resultObj.message, 'emailIsAlreadyTaken');
+	assert.equal(resultCode, 422);
+	done();
+};
+
+var registerUserTest = function (authUserClnScope, emailTokenClnScope, cbkResult, done) {
 	registerHandler.registerUser(authUserClnScope.cln, emailTokenClnScope.cln, {
 		email : 'some@some.ru',
 		emailToken : globalEmailToken,
@@ -28,11 +40,7 @@ var registerUserTest = function (authUserClnScope, emailTokenClnScope, done) {
 		mname : 'Ivanich',
 		secretQstn : 'Favorite color',
 		secretAnswer : 'Lime'
-	}, function (resultCode, resultMsg) {
-		console.log('resultMsg', resultMsg);
-		assert.equal(resultCode, 200);
-		done();
-	});
+	}, cbkResult.bind(null, done));
 };
 
 var cbkBefore = function (authDbScope, authUserClnScope, emailTokenClnScope, done) {
@@ -68,7 +76,10 @@ exports.init = function (authDbScope) {
 	it('emailTokenTest', emailTokenTest.bind(null, emailTokenClnScope));
 
 	// Second try to register an user
-	it('registerUserTest', registerUserTest.bind(null, authUserClnScope, emailTokenClnScope));
+	it('registerUserTest', registerUserTest.bind(null, authUserClnScope, emailTokenClnScope, cbkSuccessRegister));
+
+	// Try again with the same email and other handler
+	it('registerUserTest', registerUserTest.bind(null, authUserClnScope, emailTokenClnScope, cbkEmailIsAlreadyTaken));
 
 	after(cbkAfter);
 };

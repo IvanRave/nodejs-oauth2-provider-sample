@@ -12,6 +12,7 @@ var cryptoHelper = require('../helpers/crypto-helper');
 var validationHelper = require('../helpers/validation-helper');
 var appHelper = require('../helpers/app-helper');
 var uidHelper = require('../helpers/uid-helper');
+var lgr = require('../helpers/lgr-helper').init(module);
 
 /*
  * Find an authUser
@@ -65,14 +66,29 @@ exports.findByEmail = findByEmail;
 function cbkInsertAuthUser(authUserCln, authUserItem, retryCount, next, err) {
 	if (err) {
 		// if (err.msg ==' duplicate')
-		// again req
 		if (err.name === 'MongoError' && err.code === 11000) {
-			// retry again
-			exports.insertAuthUser(authUserCln, authUserItem, next, retryCount, true);
-			return;
+			// Email
+			if (err.err.indexOf('$email_uq') >= 0) {
+        lgr.error('supererror', 'emailIsAlreadyTaken');
+				next(new Error('emailIsAlreadyTaken'));
+				return;
+			}
+
+      // Reply req for id field
+			if (err.err.indexOf('$_id') >= 0) {
+				lgr.error(err);
+				// retry again
+				exports.insertAuthUser(authUserCln, authUserItem, next, retryCount, true);
+				return;
+			}
+      
+      lgr.error(err);
+      next(err); // some other duplicate error
+      return;
 		}
 	}
 
+  // Some other err
 	next(err);
 }
 
@@ -89,12 +105,13 @@ function insertAuthUser(authUserCln, authUserItem, next, retryCount) {
 	// authUserItem._id = 329342034; // testing duplicate
 
 	if (retryCount > 10) {
-		// TODO: #22! log error
+		lgr.error('maxRetriesDuplicateId');
 		next(new Error('maxRetriesDuplicateId')); // Please try again
 		return;
 	}
 
 	authUserItem._id = uidHelper.generateDbId();
+	lgr.info('authUser_id', authUserItem._id);
 
 	// Insert a record
 	authUserCln.insert(authUserItem, cbkInsertAuthUser.bind(null, authUserCln, authUserItem, retryCount, next));
@@ -140,9 +157,10 @@ var checkResultUser = function (password, next, err, needUserData) {
 /**
  * Find an user by email and check password
  */
-exports.findAndCheck = function (authUserCln, email, password, next) {
+exports.findAndCheck = function (authUserCln, email, pwd, next) {
+  lgr.info('find user and check', email, pwd);
 	findByEmail(authUserCln, email,
-		checkResultUser.bind(null, password, next));
+		checkResultUser.bind(null, pwd, next));
 };
 
 module.exports = exports;

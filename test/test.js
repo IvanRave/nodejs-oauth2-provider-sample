@@ -7,7 +7,17 @@ var cbkAuthDbConnect = function (authDbScope, done, err, db) {
 
 	authDbScope.db = db;
 	console.log('Connected to the Auth db');
-	done();
+
+	// Set indexes
+	var authUserCln = authDbScope.db.collection('authUser');
+
+	// Init database indexes
+	authUserCln.ensureIndex({
+		'email' : 1
+	}, {
+		unique : true,
+    name: 'email_uq'
+	}, done);
 };
 
 var cbkBefore = function (authDbScope, done) {

@@ -14,8 +14,9 @@ exports.init = function (module) {
 			}),
 			new(winston.transports.File)({
 				filename : 'log/app.log',
-				maxsize : 204800, // in bytes: 200Kb
-        handleExceptions: true
+				maxsize : 204800 // in bytes: 200Kb
+				// TODO: #11! Turn on on production
+				//handleExceptions : true
 			})
 		]
 	});

@@ -1,13 +1,14 @@
 /** @module helpers/srz-helper */
 
 exports.serialize = function (user, done) {
-	done(null, user.id);
+  console.log('serializing user', user);
+	done(null, user._id);
 };
 
-exports.deserialize = function (userId, done) {
-	// remove password from its
+exports.deserialize = function (uid, done) {
+  console.log('deserializing user', uid);
 	done(null, {
-		id : userId
+		_id: uid
 	});
 };
 

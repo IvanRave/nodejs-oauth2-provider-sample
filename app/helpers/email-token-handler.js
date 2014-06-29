@@ -4,7 +4,7 @@
 var emailTokenSender = require('../helpers/email-token-sender');
 var emailTokenHelper = require('../db/email-token-helper');
 var appHelper = require('../helpers/app-helper');
-var lgr = require('../helpers/lgr-helper');
+var lgr = require('../helpers/lgr-helper').init(module);
 
 var cbkUpsertToken = function (cbkRoute, err) {
 	if (err) {

@@ -1,13 +1,14 @@
 /** @module helpers/register-handler */
 
-//var lgr = require('../helpers/lgr-helper');
+var lgr = require('../helpers/lgr-helper').init(module);
 var regUserHelper = require('../db/reg-user-helper');
 var authUserHelper = require('../db/auth-user-helper');
 var emailTokenHelper = require('../db/email-token-helper');
 
 var cbkRemoveEmailToken = function (cbk, err) {
 	if (err) {
-		// TODO: #22! log error
+		lgr.error(err.message);
+
 		cbk(500, {
 			message : err.message
 		});
@@ -20,7 +21,9 @@ var cbkRemoveEmailToken = function (cbk, err) {
 
 var cbkInsertAuthRegUser = function (emailTokenCln, emailTokenResult, cbk, err) {
 	if (err) {
-		// TODO: #22! log error
+
+		lgr.info(err.message);
+
 		cbk(500, {
 			message : err.message
 		});
@@ -38,7 +41,7 @@ var cbkInsertAuthRegUser = function (emailTokenCln, emailTokenResult, cbk, err) 
  */
 var cbkFindEmailToken = function (authUserCln, emailTokenCln, regUser, cbk, err, emailTokenResult) {
 	if (err) {
-		// TODO: #22! log error
+    lgr.error(err.message);
 		cbk(500, {
 			message : err.message
 		});
@@ -71,8 +74,7 @@ var cbkFindEmailToken = function (authUserCln, emailTokenCln, regUser, cbk, err,
 };
 
 exports.registerUser = function (authUserCln, emailTokenCln, regUserData, cbk) {
-	console.log(regUserData);
-
+  lgr.info('some info');
 	var validationErrors = regUserHelper.validateSchema(regUserData);
 	if (validationErrors.length > 0) {
 		cbk(400, {

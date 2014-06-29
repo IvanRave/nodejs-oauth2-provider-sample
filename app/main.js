@@ -1,7 +1,7 @@
 /**
-* @module main 
-* @todo #23! Register user
-*/
+ * @module main
+ * @todo #23! Register user
+ */
 
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -38,16 +38,20 @@ var cbkListen = function () {
 
 var startApiService = function (authDb) {
 	var app = express();
-  app.use(express.static(process.cwd() + '/app/public'));
+	app.use(express.static(process.cwd() + '/app/public'));
 	app.set('view engine', 'ejs');
 	// views The view directory path, defaulting to "process.cwd() + '/views'"
 	app.set('views', process.cwd() + '/app/views');
 	//app.use(favicon(process.cwd() + '/app/public/favicon.ico'));
 	app.use(bodyParser());
 	app.use(cookieParser()); // required before session.
+  
+  // todo: #44! https://github.com/visionmedia/connect-redis
 	app.use(expressSession({
 			name : 'oauth.sid',
-			secret : configHelper.get('security').secret
+			secret : configHelper.get('security').secret,
+			resave : false,
+			saveUninitialized : false
 			// set max age for persistent cookies
 			// // cookie : {
 			// // maxAge : 60000
@@ -59,12 +63,14 @@ var startApiService = function (authDb) {
 
 	// at this time only few clients,
 	// no database
-	//var authUsers = [demoUserData];
+	// var authUsers = [demoUserData];
 
 	var authUserCln = authDb.collection('authUser');
 
-	passport.use(new LocalStrategy({},
-			authUserHelper.findAndCheck.bind(null, authUserCln)));
+	passport.use(new LocalStrategy({
+			usernameField : 'email',
+			passwordField : 'pwd'
+		}, authUserHelper.findAndCheck.bind(null, authUserCln)));
 
 	app.use(passport.initialize());
 	app.use(passport.session());
@@ -80,6 +86,16 @@ var startApiService = function (authDb) {
 	app.listen(configHelper.get('port'), cbkListen);
 };
 
+var cbkEnsureIndexAuthUserEmail = function (authDb, err) {
+	// err, status - name of index
+	if (err) {
+		lgr.error(err.message);
+		throw err;
+	}
+
+	startApiService(authDb);
+};
+
 var cbkAuthDbConnect = function (errConn, authDb) {
 	if (errConn) {
 		lgr.error(errConn.message);
@@ -87,7 +103,16 @@ var cbkAuthDbConnect = function (errConn, authDb) {
 	}
 
 	lgr.info('auth db is connected');
-	startApiService(authDb);
+
+	var authUserCln = authDb.collection('authUser');
+
+	// Init database indexes
+	authUserCln.ensureIndex({
+		'email' : 1
+	}, {
+		unique : true,
+		name : 'email_uq' // default value
+	}, cbkEnsureIndexAuthUserEmail.bind(null, authDb));
 };
 
 exports.init = function () {

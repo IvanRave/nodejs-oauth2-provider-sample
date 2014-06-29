@@ -1,7 +1,7 @@
 /** @module helpers/email-token-sender */
 
 var appHelper = require('../helpers/app-helper');
-var lgr = require('../helpers/lgr-helper');
+var lgr = require('../helpers/lgr-helper').init(module);
 var mailHelper = require('../helpers/mail-helper');
 
 var cbkSendMail = function (confirmationToken, next, err) {

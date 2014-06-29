@@ -1,6 +1,9 @@
 {
 	"table" : "authUser",
 	"columns" : {
+		"_id" : {
+			"dataType" : "number"
+		},
 		"uname" : {
 			"dataType" : "string"
 		},
@@ -19,7 +22,7 @@
 		},
 		"email" : {
 			"dataType" : "string",
-      "maxLength" : 320
+			"maxLength" : 320
 		},
 		"phone" : {
 			"dataType" : "string",
@@ -33,9 +36,9 @@
 			"dataType" : "string",
 			"maxLength" : 255
 		},
-    "pwdClean" : {
+		"pwdClean" : {
 			"dataType" : "string",
-      "maxLength": 255
+			"maxLength" : 255
 		},
 		"pwdSalt" : {
 			"dataType" : "string"

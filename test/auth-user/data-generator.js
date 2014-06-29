@@ -4,6 +4,10 @@ var appRoot = '../../app/';
 
 var cryptoHelper = require(appRoot + 'helpers/crypto-helper');
 
+var demoEmail = 'auth-user-test@some.ru';
+
+exports.demoEmail = demoEmail;
+
 exports.generate = function () {
 
 	var demoUserData = {
@@ -11,7 +15,7 @@ exports.generate = function () {
 		lname : 'Rave',
 		mname : 'Ivanich',
 		uname : 'Ivan Rave',
-		email : 'some@some.ru',
+		email : demoEmail,
 		phone : '123435354',
 		pwdSalt : 'SuperSalt',
 		pwdHash : '',

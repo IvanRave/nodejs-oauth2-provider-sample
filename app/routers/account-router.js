@@ -1,37 +1,47 @@
 /** @module routers/account-router */
 
+//var url = require('url');
+var qs = require('qs');
 var appMdw = require('../mdw/app-mdw');
 var emailTokenHandler = require('../helpers/email-token-handler');
 var registerHandler = require('../helpers/register-handler');
 var uidHelper = require('../helpers/uid-helper');
-var lgr = require('../helpers/lgr-helper');
+var lgr = require('../helpers/lgr-helper').init(module);
 
 /** Render a login page */
 var renderPageLogin = function (req, res) {
+  console.log('session', req.session);
 	// show ejs template from the views folder
 	res.render('login');
 };
 
 var cbkLogIn = function (req, res, next, err) {
 	if (err) {
+		lgr.error('cbkLogInError', err.message);
 		next(err);
 		return;
 	}
 
-	var redirectUrl = decodeURIComponent(req.query.redirect_url);
-	if (redirectUrl) {
+	console.log('successfull login');
+
+  var encodedRdu = req.query.redirect_url;
+	if (encodedRdu) {
+    var rdu = decodeURIComponent(encodedRdu);
+    console.log('successfull login and redirect to redirect url', rdu);
 		// Only local urls
-		redirectUrl = req.protocol + '://' + req.get('host') + redirectUrl;
+		var localRedirectUrl = req.protocol + '://' + req.get('host') + rdu;
 
 		// In other case redirect will be wrong
 		//     and user stay in the login page
-		res.redirect(redirectUrl);
+		res.redirect(localRedirectUrl);
+		return;
+	} else {
+		console.log('successfull login and redirect');
+
+		// If no redirectUrl (or wrong) - to the main page
+		res.redirect('/');
 		return;
 	}
-
-	// If no redirectUrl (or wrong) - to the main page
-	res.redirect('/');
-	return;
 };
 
 var cbkPauth = function (req, res, next, err, user, info) {
@@ -39,8 +49,10 @@ var cbkPauth = function (req, res, next, err, user, info) {
 		return next(err);
 	}
 
+	lgr.info('pauth user', JSON.stringify(user));
+
 	// Auth errors or info
-	//lgr.info(info);
+	lgr.info('pauth info', info);
 
 	if (!user) {
 		return res.redirect('/account/login?message=' + info.message);
@@ -54,6 +66,8 @@ var cbkPostLogin = function (passport, req, res, next) {
 };
 
 var cbkPageInfo = function (req, res) {
+  console.log('session', req.session);
+
 	res.send(req.user);
 };
 
@@ -63,21 +77,21 @@ var cbkPageLogout = function (req, res) {
 };
 // TODO: #43! get from global dictionary
 var regDict = {
-  fname: 'First name',
-  lname: 'Last name',
-  mname: 'Middle name',
-  email: 'Email',
-  emailToken: 'Email confirmation code',
-  pwd: 'Password',
-  pwdConfirmation: 'Password again',
-  secretQstn: 'Secret question',
-  secretAnswer: 'Secret answer'
+	fname : 'First name',
+	lname : 'Last name',
+	mname : 'Middle name',
+	email : 'Email',
+	emailToken : 'Email confirmation code',
+	pwd : 'Password',
+	pwdConfirmation : 'Password again',
+	secretQstn : 'Secret question',
+	secretAnswer : 'Secret answer'
 };
 
 var secretQstnArr = [
-  'Favorite book',
-  'Name of your first pet',
-  'Your secret keyword'
+	'Favorite book',
+	'Name of your first pet',
+	'Your secret keyword'
 ];
 
 /**
@@ -86,26 +100,34 @@ var secretQstnArr = [
 var renderPageRegister = function (req, res) {
 	res.render('register', {
 		usr : {},
-    validationErrors : [],
-    otherErr: '',
-    regDict: regDict,
-    secretQstnArr: secretQstnArr
+		validationErrors : [],
+		otherErr : '',
+		regDict : regDict,
+		secretQstnArr : secretQstnArr
 	});
 };
 
 var cbkRegisterUser = function (req, res, resCode, resMsg) {
 	if (resCode === 200) {
-    // TODO: #32! send 'Successfull registration')
-		res.redirect(303, '/account/login');
+		// get all params from request
+		// var urlParts = url.parse(req.url, true);
+		// var query = urlParts.query;
+		// TODO: #32! send 'Successfull registration')
+		var queryParams = req.query;
+		queryParams.msg = 'successfulRegistration';
+
+		console.log(queryParams);
+
+		res.redirect(303, '/account/login?' + qs.stringify(queryParams));
 		return;
 	}
 
 	res.render('register', {
 		usr : req.body,
 		validationErrors : resMsg.validationErrors || [],
-    otherErr: (!resMsg.validationErrors) ? resMsg.message : '',
-    regDict: regDict,
-    secretQstnArr: secretQstnArr
+		otherErr : (!resMsg.validationErrors) ? resMsg.message : '',
+		regDict : regDict,
+		secretQstnArr : secretQstnArr
 	});
 
 	//res.send(303);

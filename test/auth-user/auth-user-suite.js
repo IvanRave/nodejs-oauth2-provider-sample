@@ -10,7 +10,7 @@ var authUserGenerator = require('./data-generator');
 // Demo user can't be in a real storage
 
 var findByEmailTest = function (authUserClnScope, done) {
-	authUserHelper.findByEmail(authUserClnScope.cln, 'some@some.ru', function (err, authUser) {
+	authUserHelper.findByEmail(authUserClnScope.cln, authUserGenerator.demoEmail, function (err, authUser) {
 		if (err) {
 			return done(err);
 		}
@@ -21,7 +21,7 @@ var findByEmailTest = function (authUserClnScope, done) {
 };
 
 var findAndCheckTest = function (authUserClnScope, done) {
-	authUserHelper.findAndCheck(authUserClnScope.cln, 'some@some.ru', 'SuperPwd', function (err, needUser) {
+	authUserHelper.findAndCheck(authUserClnScope.cln, authUserGenerator.demoEmail, 'SuperPwd', function (err, needUser) {
 		if (err) {
 			throw err;
 		}
