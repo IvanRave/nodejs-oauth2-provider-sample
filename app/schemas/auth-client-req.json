@@ -1,0 +1,13 @@
+{
+	"columns" : {
+		"response_type" : {
+			"dataType" : "string"
+		},
+		"client_id" : {
+			"dataType" : "string"
+		},
+		"redirect_uri" : {
+			"dataType" : "string"
+		}
+	}
+}

@@ -6,6 +6,8 @@ var appMdw = require('../mdw/app-mdw');
 var authClientHelper = require('../db/auth-client-helper');
 var uidHelper = require('../helpers/uid-helper');
 var lgr = require('../helpers/lgr-helper').init(module);
+var validationHelper = require('../helpers/validation-helper');
+var authClientReqSchema = require('../schemas/auth-client-req');
 
 var configHelper = require('../helpers/config-helper');
 
@@ -13,29 +15,34 @@ var configHelper = require('../helpers/config-helper');
 // no database
 var authClients = configHelper.get('authClients');
 
+var cbkFindByClientId = function (redirectUri, done, err, client) {
+	if (err) {
+		lgr.error(err);
+		return done(err);
+	}
+
+	lgr.info('client is finded', client);
+
+	if (!client) {
+		return done(null, false);
+	}
+
+	if (client.redirectUri !== redirectUri) {
+		lgr.info('redirectUrls not equals');
+		return done(null, false);
+	}
+
+	// Go to oauth2 serialization
+	// https://github.com/jaredhanson/oauth2orize#session-serialization
+	// TODO: #23! Handle exceptions in normal view
+	done(null, client, client.redirectUri);
+};
+
 var cbkAutorize = function (clientId, redirectUri, done) {
 	lgr.info('clientId: %s, redirectUri: %s', clientId, redirectUri);
 
-	authClientHelper.findByClientId(authClients, clientId, function (err, client) {
-		if (err) {
-			console.log('find error');
-			return done(err);
-		}
-
-		console.log('client is finded', client);
-
-		if (!client) {
-			return done(null, false);
-		}
-
-		if (client.redirectUri !== redirectUri) {
-			return done(null, false);
-		}
-
-		// Go to oauth2 serialization
-		// https://github.com/jaredhanson/oauth2orize#session-serialization
-		done(null, client, client.redirectUri);
-	});
+	authClientHelper.findByClientId(authClients, clientId,
+		cbkFindByClientId.bind(null, redirectUri, done));
 };
 
 var cbkGrantCode = function (client, redirectUri, user, ares, done) {
@@ -54,9 +61,9 @@ var cbkGrantCode = function (client, redirectUri, user, ares, done) {
 };
 
 var cbkExchangeCode = function (client, code, redirectURI, done) {
-	console.log('code exchanging...', code);
+	lgr.info('code exchanging...', code);
 	var asdf = uidHelper.generate(256);
-	console.log('generated uid', asdf);
+	lgr.info('generated uid', asdf);
 	done(null, asdf);
 
 	// AuthorizationCode.findOne(code, function(err, code) {
@@ -91,6 +98,19 @@ var skipDecisionMdw = function (req, res) {
 	res.redirect('/dialog/decision?transaction_id=' + req.oauth2.transactionID);
 };
 
+var checkAuthorizeParams = function (req, res, next) {
+	var validationErrors = validationHelper.validate(req.query, authClientReqSchema);
+	if (validationErrors.length > 0) {
+		res.send(400, {
+			'validationErrors' : validationErrors
+		});
+
+		return;
+	}
+
+	next();
+};
+
 exports.createRouter = function (express, passport) {
 	lgr.info('Created router');
 	passport.use(new ClientPasswordStrategy(
@@ -112,6 +132,7 @@ exports.createRouter = function (express, passport) {
 	// 2. Generate transaction and send to the decision page
 	router.get('/authorize',
 		appMdw.ensureAuth,
+		checkAuthorizeParams,
 		server.authorization(cbkAutorize),
 		skipDecisionMdw);
 
