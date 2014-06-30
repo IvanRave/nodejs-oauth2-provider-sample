@@ -55,6 +55,7 @@ var cbkPauth = function (req, res, next, err, user, info) {
 	lgr.info('pauth info', info);
 
 	if (!user) {
+    // TODO: #23! If some redirect_url -> pass to there
 		return res.redirect('/account/login?message=' + info.message);
 	}
 

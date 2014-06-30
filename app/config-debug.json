@@ -12,7 +12,7 @@
 			"name" : "oil-client",
 			"clientId" : "abc123",
 			"clientSecret" : "ssh-secret",
-			"redirectUri" : "http://localhost:22222/auth/oil/callback"
+			"redirectUri" : "http://127.0.0.1:12345/handle-auth-code.html"
 		}
 	],
 	"adminEmail" : "debugdeveloper@gmail.com",

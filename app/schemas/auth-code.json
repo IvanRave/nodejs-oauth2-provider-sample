@@ -1,0 +1,20 @@
+{
+	"table" : "authCode",
+	"columns" : {
+		"_id" : {
+			"dataType" : "string"
+		},
+		"clientId" : {
+			"dataType" : "string"
+		},
+		"redirectUri" : {
+			"dataType" : "string"
+		},
+		"uid" : {
+			"dataType" : "number"
+		},
+		"scopes" : {
+			"dataType" : "string"
+		}
+	}
+}

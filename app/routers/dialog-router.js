@@ -8,6 +8,7 @@ var uidHelper = require('../helpers/uid-helper');
 var lgr = require('../helpers/lgr-helper').init(module);
 var validationHelper = require('../helpers/validation-helper');
 var authClientReqSchema = require('../schemas/auth-client-req');
+var authCodeHelper = require('../db/auth-code-helper');
 
 var configHelper = require('../helpers/config-helper');
 
@@ -45,19 +46,26 @@ var cbkAutorize = function (clientId, redirectUri, done) {
 		cbkFindByClientId.bind(null, redirectUri, done));
 };
 
-var cbkGrantCode = function (client, redirectUri, user, ares, done) {
-	var code = uidHelper.generate(16);
-	// TODO: save this code to database
-	//       to validate later
-	done(null, code);
+var cbkInsertAuthCode = function (done, err, createdAuthCode) {
+	if (err) {
+		done(err);
+		return;
+	}
 
-	// var ac = new AuthorizationCode(code, client.id, redirectURI, user.id, ares.scope);
-	// ac.save(function (err) {
-	// if (err) {
-	// return done(err);
-	// }
-	// return done(null, code);
-	// });
+	done(null, createdAuthCode._id);
+	return;
+};
+
+/**
+ * Grant a code to the client
+ * @params {Object} user - Serialized user from session, {uid: 12343}
+ */
+var cbkGrantCode = function (authCodeCln, client, redirectUri, serializedUser, ares, done) {
+	// save this code to a database
+	//       to validate later (when exchanging to access_token)
+	var authCode = authCodeHelper.createAuthCode(client.id, redirectUri, serializedUser.uid);
+
+	authCodeHelper.insertAuthCode(authCodeCln, authCode, cbkInsertAuthCode.bind(null, done));
 };
 
 var cbkExchangeCode = function (client, code, redirectURI, done) {
@@ -111,7 +119,7 @@ var checkAuthorizeParams = function (req, res, next) {
 	next();
 };
 
-exports.createRouter = function (express, passport) {
+exports.createRouter = function (express, passport, authDb) {
 	lgr.info('Created router');
 	passport.use(new ClientPasswordStrategy(
 			authClientHelper.validateSecret.bind(null, authClients)));
@@ -124,7 +132,9 @@ exports.createRouter = function (express, passport) {
 
 	server.deserializeClient(cbkDeserializeClient);
 
-	server.grant(oauth2orize.grant.code(cbkGrantCode));
+	var authCodeCln = authDb.collection('authCode');
+
+	server.grant(oauth2orize.grant.code(cbkGrantCode.bind(null, authCodeCln)));
 
 	server.exchange(oauth2orize.exchange.code(cbkExchangeCode));
 
@@ -145,12 +155,13 @@ exports.createRouter = function (express, passport) {
 	// 5. Separate request: change code to token
 	router.post('/token',
 		function (req, res, next) {
-		lgr.info('logging token request');
+		lgr.info('logging token request', req.params);
 		next();
 	},
 		passport.authenticate('oauth2-client-password', {
 			session : false
 		}),
+		//cbkExchangeCode
 		server.token(),
 		server.errorHandler());
 

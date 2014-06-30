@@ -76,7 +76,7 @@ var startApiService = function (authDb) {
 	app.use(passport.session());
 
 	app.use('/account', accountRouter.createRouter(express, passport, authDb));
-	app.use('/dialog', dialogRouter.createRouter(express, passport));
+	app.use('/dialog', dialogRouter.createRouter(express, passport, authDb));
 	// For other pages
 	app.use('/', cbkPageWelcome);
 
