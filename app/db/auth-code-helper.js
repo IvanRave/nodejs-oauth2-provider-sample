@@ -41,4 +41,20 @@ exports.insertAuthCode = function (authCodeCln, authCode, next) {
 	authCodeCln.insert(authCode, cbkInsertAuthCode.bind(null, authCodeCln, authCode, next));
 };
 
+/**
+ * Find by code (_id)
+ */
+exports.findAuthCodeByCode = function (authCodeCln, code, next) {
+	authCodeCln.findOne({
+		_id : code
+	}, next);
+};
+
+/** Remove temp code from a table (after exchanging to an access token) */
+exports.removeAuthCode = function (authCodeCln, authCode, next) {
+	authCodeCln.remove({
+		_id : authCode._id
+	}, next);
+};
+
 module.exports = exports;

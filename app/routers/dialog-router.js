@@ -4,11 +4,11 @@ var oauth2orize = require('oauth2orize');
 var ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy;
 var appMdw = require('../mdw/app-mdw');
 var authClientHelper = require('../db/auth-client-helper');
-var uidHelper = require('../helpers/uid-helper');
 var lgr = require('../helpers/lgr-helper').init(module);
 var validationHelper = require('../helpers/validation-helper');
 var authClientReqSchema = require('../schemas/auth-client-req');
 var authCodeHelper = require('../db/auth-code-helper');
+var accessTokenHelper = require('../db/access-token-helper');
 
 var configHelper = require('../helpers/config-helper');
 
@@ -68,11 +68,56 @@ var cbkGrantCode = function (authCodeCln, client, redirectUri, serializedUser, a
 	authCodeHelper.insertAuthCode(authCodeCln, authCode, cbkInsertAuthCode.bind(null, done));
 };
 
-var cbkExchangeCode = function (client, code, redirectURI, done) {
-	lgr.info('code exchanging...', code);
-	var asdf = uidHelper.generate(256);
-	lgr.info('generated uid', asdf);
-	done(null, asdf);
+/** Access token inserted */
+var cbkInsertAccessToken = function (authCodeCln, authCode, done, err, createdAccessToken) {
+	if (err) {
+		return done(err);
+	}
+
+	// If successfull - remove tmp authorization code
+	authCodeHelper.removeAuthCode(authCodeCln, authCode, function (errRemove) {
+		if (errRemove) {
+			lgr.error(errRemove);
+			// Skip error. It is not need for an user (only for an admin)
+		}
+
+		done(null, createdAccessToken._id);
+	});
+};
+
+/** Handle the finded auth code */
+var cbkFindAuthCode = function (authCodeCln, accessTokenCln, authClient, done, err, authCode) {
+	if (err) {
+		return done(err);
+	}
+
+	// Auth code is not finded in the database
+	if (!authCode) {
+		return done(null, false);
+	}
+
+	lgr.info('result auth code', JSON.stringify(authCode));
+
+	if (authClient.id !== authCode.clientId) {
+		return done(null, false);
+	}
+
+	if (authClient.redirectUri !== authCode.redirectUri) {
+		return done(null, false);
+	}
+
+	var accessToken = accessTokenHelper.createAccessToken(authCode.clientId, authCode.uid);
+
+	accessTokenHelper.insertAccessToken(accessTokenCln, accessToken,
+		cbkInsertAccessToken.bind(null, authCodeCln, authCode, done));
+};
+
+/** Echange an authorization code to an access token */
+var cbkExchangeCode = function (authCodeCln, accessTokenCln, client, code, redirectURI, done) {
+	lgr.info('code exchanging...', code, client);
+
+	authCodeHelper.findAuthCodeByCode(authCodeCln, code,
+		cbkFindAuthCode.bind(null, authCodeCln, accessTokenCln, client, done));
 
 	// AuthorizationCode.findOne(code, function(err, code) {
 	// if (err) { return done(err); }
@@ -133,10 +178,11 @@ exports.createRouter = function (express, passport, authDb) {
 	server.deserializeClient(cbkDeserializeClient);
 
 	var authCodeCln = authDb.collection('authCode');
+	var accessTokenCln = authDb.collection('accessToken');
 
 	server.grant(oauth2orize.grant.code(cbkGrantCode.bind(null, authCodeCln)));
 
-	server.exchange(oauth2orize.exchange.code(cbkExchangeCode));
+	server.exchange(oauth2orize.exchange.code(cbkExchangeCode.bind(null, authCodeCln, accessTokenCln)));
 
 	// 1. Check login if needed
 	// 2. Generate transaction and send to the decision page

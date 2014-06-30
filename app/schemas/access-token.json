@@ -4,17 +4,17 @@
 		"_id" : {
 			"dataType" : "string"
 		},
-		"clientId" : {
+		"uid" : {
 			"dataType" : "number"
 		},
-		"redirectUri" : {
-			"dataType" : "string"
-		},
-		"uid" : {
+		"clientId" : {
 			"dataType" : "number"
 		},
 		"scopes" : {
 			"dataType" : "string"
+		},
+		"created" : {
+			"dataType" : "number"
 		}
 	}
 }
