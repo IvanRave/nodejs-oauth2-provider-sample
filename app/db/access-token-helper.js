@@ -43,11 +43,11 @@ exports.insertAccessToken = function (cln, accessToken, next) {
 };
 
 /**
- * Find by code (_id)
+ * Find by token string (_id)
  */
-exports.findAuthCodeByCode = function (authCodeCln, code, next) {
-	authCodeCln.findOne({
-		_id : code
+exports.findAccessToken = function (accessTokenCln, accessTokenStr, next) {
+	accessTokenCln.findOne({
+		_id : accessTokenStr
 	}, next);
 };
 

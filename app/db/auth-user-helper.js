@@ -35,6 +35,15 @@ var findByEmail = function (authUserCln, email, next) {
 	}, next);
 };
 
+/**
+ * Find auth user data, filtered by fields
+ */
+exports.findAuthUserByFields = function (authUserCln, uid, fields, next) {
+	authUserCln.findOne({
+		_id : uid
+	}, fields, next);
+};
+
 var createAuthUser = function (authUserData) {
 	return new BaseModel(authUserData, authUserSchema);
 };
@@ -69,26 +78,26 @@ function cbkInsertAuthUser(authUserCln, authUserItem, retryCount, next, err) {
 		if (err.name === 'MongoError' && err.code === 11000) {
 			// Email
 			if (err.err.indexOf('$email_uq') >= 0) {
-        lgr.error('supererror', 'emailIsAlreadyTaken');
+				lgr.error('supererror', 'emailIsAlreadyTaken');
 				next(new Error('emailIsAlreadyTaken'));
 				return;
 			}
 
-      // Reply req for id field
+			// Reply req for id field
 			if (err.err.indexOf('$_id') >= 0) {
 				lgr.error(err);
 				// retry again
 				exports.insertAuthUser(authUserCln, authUserItem, next, retryCount, true);
 				return;
 			}
-      
-      lgr.error(err);
-      next(err); // some other duplicate error
-      return;
+
+			lgr.error(err);
+			next(err); // some other duplicate error
+			return;
 		}
 	}
 
-  // Some other err
+	// Some other err
 	next(err);
 }
 
@@ -158,7 +167,7 @@ var checkResultUser = function (password, next, err, needUserData) {
  * Find an user by email and check password
  */
 exports.findAndCheck = function (authUserCln, email, pwd, next) {
-  lgr.info('find user and check', email, pwd);
+	lgr.info('find user and check', email, pwd);
 	findByEmail(authUserCln, email,
 		checkResultUser.bind(null, pwd, next));
 };

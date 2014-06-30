@@ -17,6 +17,7 @@ var lgr = require('./helpers/lgr-helper').init(module);
 var authUserHelper = require('./db/auth-user-helper');
 var accountRouter = require('./routers/account-router');
 var dialogRouter = require('./routers/dialog-router');
+var apiRouter = require('./routers/api-router');
 //var cryptoHelper = require('./helpers/crypto-helper');
 
 var cbkPageWelcome = function (req, res) {
@@ -45,8 +46,8 @@ var startApiService = function (authDb) {
 	//app.use(favicon(process.cwd() + '/app/public/favicon.ico'));
 	app.use(bodyParser());
 	app.use(cookieParser()); // required before session.
-  
-  // todo: #44! https://github.com/visionmedia/connect-redis
+
+	// todo: #44! https://github.com/visionmedia/connect-redis
 	app.use(expressSession({
 			name : 'oauth.sid',
 			secret : configHelper.get('security').secret,
@@ -77,6 +78,10 @@ var startApiService = function (authDb) {
 
 	app.use('/account', accountRouter.createRouter(express, passport, authDb));
 	app.use('/dialog', dialogRouter.createRouter(express, passport, authDb));
+
+	// api methods - not required session
+	app.use('/api', apiRouter.init(express.Router(), passport, authDb));
+
 	// For other pages
 	app.use('/', cbkPageWelcome);
 

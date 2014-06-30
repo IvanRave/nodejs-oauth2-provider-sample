@@ -1,5 +1,5 @@
 {
-	"table" : "authCode",
+	"table" : "accessToken",
 	"columns" : {
 		"_id" : {
 			"dataType" : "string"
