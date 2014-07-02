@@ -121,7 +121,14 @@ var cbkAuthDbConnect = function (errConn, authDb) {
 };
 
 exports.init = function () {
-	MongoClient.connect(configHelper.get('authConn').uri,
+
+	var dbConnUri = process.env.DB_CONN_URI;
+	console.log('dbconnuri', dbConnUri);
+	if (!dbConnUri) {
+		throw new Error('no DB_CONN_URI in global vars');
+	}
+
+	MongoClient.connect(process.env.DB_CONN_URI, // configHelper.get('authConn').uri
 		cbkAuthDbConnect);
 };
 
