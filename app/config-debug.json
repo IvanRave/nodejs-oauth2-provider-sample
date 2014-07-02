@@ -1,11 +1,7 @@
-{
-	"port" : 1337,
+{	
 	"security" : {
 		"tokenLife" : 3600,
 		"secret" : "supercat"
-	},
-	"authConn" : {
-		"uri" : "mongodb://localhost/oil-auth"
 	},
 	"authClients" : [{
 			"id" : 1,

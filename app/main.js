@@ -34,7 +34,7 @@ var cbkPageNonExists = function (req, res) {
 };
 
 var cbkListen = function () {
-	lgr.info('Express server listening on port: %s', configHelper.get('port'));
+	lgr.info('Express server listening...');
 };
 
 var startApiService = function (authDb) {
@@ -88,7 +88,9 @@ var startApiService = function (authDb) {
 	// For non-existing pages
 	app.use(cbkPageNonExists);
 
-	app.listen(configHelper.get('port'), cbkListen);
+	var appPort = process.env.PORT || 1337;
+	lgr.info('Port to listen', appPort);
+	app.listen(appPort, cbkListen);
 };
 
 var cbkEnsureIndexAuthUserEmail = function (authDb, err) {
@@ -121,14 +123,13 @@ var cbkAuthDbConnect = function (errConn, authDb) {
 };
 
 exports.init = function () {
-
 	var dbConnUri = process.env.DB_CONN_URI;
-	console.log('dbconnuri', dbConnUri);
+	console.log('dbConnUri', dbConnUri);
 	if (!dbConnUri) {
 		throw new Error('no DB_CONN_URI in global vars');
 	}
 
-	MongoClient.connect(process.env.DB_CONN_URI, // configHelper.get('authConn').uri
+	MongoClient.connect(dbConnUri,
 		cbkAuthDbConnect);
 };
 
