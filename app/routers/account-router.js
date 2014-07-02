@@ -12,9 +12,12 @@ var dict = require('../dict');
 /** Render a login page */
 var renderPageLogin = function (req, res) {
 	console.log('session', req.session);
+  
 	// show ejs template from the views folder
 	res.render('login', {
-		dict : dict
+		dict : dict,
+    // get all query params and put to register link
+    registerLink: 'register?' + qs.stringify(req.query)
 	});
 };
 
@@ -108,7 +111,9 @@ var renderPageRegister = function (req, res) {
 		validationErrors : [],
 		otherErr : '',
 		regDict : regDict,
-		secretQstnArr : secretQstnArr
+		secretQstnArr : secretQstnArr,
+    // get all query params and put to register link
+    loginLink: 'login?' + qs.stringify(req.query)
 	});
 };
 
