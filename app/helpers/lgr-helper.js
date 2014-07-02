@@ -11,13 +11,13 @@ exports.init = function (module) {
 				colorize : true,
 				level : 'debug',
 				label : path
-			}),
-			new(winston.transports.File)({
-				filename : 'log/app.log',
-				maxsize : 204800 // in bytes: 200Kb
-				// TODO: #11! Turn on on production
-				//handleExceptions : true
 			})
+			// new(winston.transports.File)({
+			// filename : 'log/app.log',
+			// maxsize : 204800 // in bytes: 200Kb
+			// // TODO: #11! Turn on on production
+			// //handleExceptions : true
+			// })
 		]
 	});
 };
