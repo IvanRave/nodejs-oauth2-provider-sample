@@ -7,6 +7,9 @@ regHelper.sendEmailToken = function () {
 		alert('Please fill the email field');
 		return;
 	}
+  
+  var ccBtn = document.getElementById('send-cc-btn');
+	ccBtn.disabled = true;
 
 	var reqUrl = 'email-confirmation';
 	var reqType = 'POST';
@@ -17,22 +20,25 @@ regHelper.sendEmailToken = function () {
 
 	var xhReq = new XMLHttpRequest();
 
-  console.log(xhReq);
+	console.log(xhReq);
 	xhReq.open(reqType, reqUrl, false);
-  
-  //xhReq.body = reqBody;
-  
-  xhReq.onreadystatechange = function(){
-    if (xhReq.readyState === 4){
-      alert(xhReq.status);
-    }
-  };
-  
-  xhReq.setRequestHeader('Content-type', 'application/json');
+
+	//xhReq.body = reqBody;
+
+	xhReq.onreadystatechange = function () {
+    ccBtn.disabled = false;
+		if (xhReq.readyState === 4) {
+			if (xhReq.status === 200) {
+				alert('A confirmation code was sent. Please check your email.');
+			} else {
+				alert('An error occurred during sending. Please contact to administration or try again later.');
+			}
+		}
+	};
+
+	xhReq.setRequestHeader('Content-type', 'application/json');
 
 	xhReq.send(reqBody);
-  
-  
 
 	// var serverResponse = xhReq.responseText;
 
