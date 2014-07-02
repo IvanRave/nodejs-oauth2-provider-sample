@@ -8,3 +8,4 @@
 /doc/
 /log/
 .ftppass
+set-env-release.sh

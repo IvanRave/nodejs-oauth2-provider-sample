@@ -11,9 +11,5 @@
 			"redirectUri" : "http://127.0.0.1:12345/handle-auth-code.html"
 		}
 	],
-	"adminEmail" : "debugdeveloper@gmail.com",
-	"mailTransport" : "Pickup",
-	"mailSettings" : {
-		"directory" : "D:\\Dev\\DebugEmails\\AuthProvider"
-	}
+	"adminEmail" : "debugdeveloper@gmail.com"
 }
