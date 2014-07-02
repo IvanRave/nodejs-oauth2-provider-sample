@@ -1,15 +1,37 @@
 <span id="failure-msg"></span>
 
-<form action="" method="post">
-	<div>
-	<label>Email:</label>
-	<input type="text" name="email" value=""/>
+<div class="clearfix">
+  <div class="col-sm-3"></div>
+  <div class="col-sm-3">
+    <h4>
+      <%= dict.logon %>
+    </h4>
+  </div>
+  <div class="col-sm-3 text-right">
+    <h4>
+      <a href="register"><%= dict.register %></a>
+    </h4>
+  </div>
+</div>
+
+<form class="form-horizontal" action="" method="post">
+	<div class="form-group">
+    <label class="control-label col-sm-3" for="email"><%= dict.email %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="email" name="email" type="email" maxlength="320" required />
+    </div>
 	</div>
-	<div>
-	<label>Password:</label>
-	<input type="password" name="pwd" value=""/>
+	<div class="form-group">
+    <label class="control-label col-sm-3" for="pwd"><%= dict.pwd %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="pwd" name="pwd" type="password" maxlength="255" required />
+    </div>
 	</div>
-	<div>
-	<input type="submit" value="Submit"/>
+	<div class="form-group">
+    <div class="col-sm-6 col-sm-offset-3 text-right">
+      <button class="btn btn-default" type="submit">
+        <%= dict.logon %>
+      </button>
+    </div>
 	</div>
 </form>

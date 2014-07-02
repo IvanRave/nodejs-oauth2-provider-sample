@@ -1,4 +1,4 @@
-{	
+{
 	"security" : {
 		"tokenLife" : 3600,
 		"secret" : "supercat"

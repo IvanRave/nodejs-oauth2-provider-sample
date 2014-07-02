@@ -7,12 +7,15 @@ var emailTokenHandler = require('../helpers/email-token-handler');
 var registerHandler = require('../helpers/register-handler');
 var uidHelper = require('../helpers/uid-helper');
 var lgr = require('../helpers/lgr-helper').init(module);
+var dict = require('../dict');
 
 /** Render a login page */
 var renderPageLogin = function (req, res) {
-  console.log('session', req.session);
+	console.log('session', req.session);
 	// show ejs template from the views folder
-	res.render('login');
+	res.render('login', {
+		dict : dict
+	});
 };
 
 var cbkLogIn = function (req, res, next, err) {
@@ -24,10 +27,10 @@ var cbkLogIn = function (req, res, next, err) {
 
 	console.log('successfull login');
 
-  var encodedRdu = req.query.redirect_url;
+	var encodedRdu = req.query.redirect_url;
 	if (encodedRdu) {
-    var rdu = decodeURIComponent(encodedRdu);
-    console.log('successfull login and redirect to redirect url', rdu);
+		var rdu = decodeURIComponent(encodedRdu);
+		console.log('successfull login and redirect to redirect url', rdu);
 		// Only local urls
 		var localRedirectUrl = req.protocol + '://' + req.get('host') + rdu;
 
@@ -55,7 +58,7 @@ var cbkPauth = function (req, res, next, err, user, info) {
 	lgr.info('pauth info', info);
 
 	if (!user) {
-    // TODO: #23! If some redirect_url -> pass to there
+		// TODO: #23! If some redirect_url -> pass to there
 		return res.redirect('/account/login?message=' + info.message);
 	}
 
@@ -67,7 +70,7 @@ var cbkPostLogin = function (passport, req, res, next) {
 };
 
 var cbkPageInfo = function (req, res) {
-  console.log('session', req.session);
+	console.log('session', req.session);
 
 	res.send(req.user);
 };
@@ -100,6 +103,7 @@ var secretQstnArr = [
  */
 var renderPageRegister = function (req, res) {
 	res.render('register', {
+		dict : dict,
 		usr : {},
 		validationErrors : [],
 		otherErr : '',
@@ -124,6 +128,7 @@ var cbkRegisterUser = function (req, res, resCode, resMsg) {
 	}
 
 	res.render('register', {
+		dict : dict,
 		usr : req.body,
 		validationErrors : resMsg.validationErrors || [],
 		otherErr : (!resMsg.validationErrors) ? resMsg.message : '',

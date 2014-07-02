@@ -1,98 +1,108 @@
-<link href="../css/bootstrap.css" rel="stylesheet"/>
-<link href="../css/bootstrap-theme.css" rel="stylesheet"/>
 <script src="../js/reg-helper.js"></script>
 
-<div class="col-md-3"></div>
-<div class="col-md-6">
-  <% if (validationErrors.length > 0) { %>
+<div class="clearfix">
+  <div class="col-sm-3"></div>
+  <div class="col-sm-3">
     <h4>
-      Validation errors:
+      <%= dict.register %>
     </h4>
-    <ul>
-      <% validationErrors.forEach(function(err){ %>
-        <li class="text-danger"><%= err.prop %>: <%= err.err %></li>
-      <% }); %>
-    </ul>
-  <% } %>
-
-  <% if (otherErr) { %>
-    <div class="text-danger">
-      Error: <%= otherErr %>
-    </div>
-  <% } %>
-  
-  <form class="form-horizontal" action="" method="post">
-    <div class="form-group">
-      <label class="control-label col-sm-3" for="email"><%= regDict.email %>:</label>
-      <div class="col-sm-6">
-        <input class="form-control" id="email" name="email" type="email" autofill="false" maxlength="320" required value="<%= usr.email || '' %>"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="control-label col-sm-3" for="emailToken"><%= regDict.emailToken %>:</label>
-      <div class="col-sm-6">
-        <input class="form-control" id="emailToken" name="emailToken" type="text" required maxlength="255" value="<%= usr.emailToken || '' %>"/>
-      </div>
-      <div class="col-sm-3">
-        <button class="btn btn-link" type="button" onclick="regHelper.sendEmailToken()">Get this code on email</button>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="control-label col-sm-3" for="lname"><%= regDict.lname %>:</label>
-      <div class="col-sm-6">
-        <input class="form-control" id="lname" name="lname" type="text" required maxlength="255" value="<%= usr.lname || '' %>"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="control-label col-sm-3" for="fname"><%= regDict.fname %>:</label>
-      <div class="col-sm-6">
-        <input class="form-control" id="fname" name="fname" type="text" required maxlength="255" value="<%= usr.fname || '' %>"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="control-label col-sm-3" for="mname"><%= regDict.mname %>:</label>
-      <div class="col-sm-6">
-        <input class="form-control" id="mname" name="mname" type="text" placeholder="not required" maxlength="255" value="<%= usr.mname || '' %>"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="control-label col-sm-3" for="pwd"><%= regDict.pwd %>:</label>
-      <div class="col-sm-6">
-        <input class="form-control" id="pwd" name="pwd" type="password" required maxlength="255" value=""/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="control-label col-sm-3" for="pwdConfirmation"><%= regDict.pwdConfirmation %>:</label>
-      <div class="col-sm-6">
-        <input class="form-control" id="pwdConfirmation" name="pwdConfirmation" type="password" required maxlength="255" value=""/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="control-label col-sm-3" title="required if forget a password" for="secretQstn">
-        <%= regDict.secretQstn %>:
-      </label>
-      <div class="col-sm-6">
-        <select class="form-control" id="secretQstn" name="secretQstn" required>
-          <option></option>
-          <% secretQstnArr.forEach(function(qstn){ %>
-            <option value="<%= qstn %>" <% if(qstn === usr.secretQstn){ %> selected <% } %>>
-              <%= qstn %>
-            </option>
-          <% }); %>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="control-label col-sm-3" for="secretAnswer"><%= regDict.secretAnswer %>:</label>
-      <div class="col-sm-6">
-        <input class="form-control" id="secretAnswer" name="secretAnswer" type="text" required maxlength="255" value="<%= usr.secretAnswer || '' %>"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="col-sm-6 col-sm-offset-3 text-right">
-        <button class="btn btn-default" type="submit">Register</button>
-      </div>
-    </div>
-  </form>
+  </div>
+  <div class="col-sm-3 text-right">
+    <h4>
+      <a href="login"><%= dict.logon %></a>
+    </h4>
+  </div>
 </div>
-<div class="col-md-3"></div>
+
+<% if (validationErrors.length > 0) { %>
+  <h4>
+    Validation errors:
+  </h4>
+  <ul>
+    <% validationErrors.forEach(function(err){ %>
+      <li class="text-danger"><%= err.prop %>: <%= err.err %></li>
+    <% }); %>
+  </ul>
+<% } %>
+
+<% if (otherErr) { %>
+  <div class="text-danger">
+    Error: <%= otherErr %>
+  </div>
+<% } %>
+
+<form class="form-horizontal" action="" method="post">
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="email"><%= regDict.email %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="email" name="email" type="email" autofill="false" maxlength="320" required value="<%= usr.email || '' %>"/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="emailToken"><%= regDict.emailToken %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="emailToken" name="emailToken" type="text" required maxlength="255" value="<%= usr.emailToken || '' %>"/>
+    </div>
+    <div class="col-sm-3">
+      <button class="btn btn-link" type="button" onclick="regHelper.sendEmailToken()">Get this code on email</button>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="lname"><%= regDict.lname %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="lname" name="lname" type="text" required maxlength="255" value="<%= usr.lname || '' %>"/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="fname"><%= regDict.fname %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="fname" name="fname" type="text" required maxlength="255" value="<%= usr.fname || '' %>"/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="mname"><%= regDict.mname %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="mname" name="mname" type="text" placeholder="not required" maxlength="255" value="<%= usr.mname || '' %>"/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="pwd"><%= regDict.pwd %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="pwd" name="pwd" type="password" required maxlength="255" value=""/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="pwdConfirmation"><%= regDict.pwdConfirmation %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="pwdConfirmation" name="pwdConfirmation" type="password" required maxlength="255" value=""/>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-3" title="required if forget a password" for="secretQstn">
+      <%= regDict.secretQstn %>:
+    </label>
+    <div class="col-sm-6">
+      <select class="form-control" id="secretQstn" name="secretQstn" required>
+        <option></option>
+        <% secretQstnArr.forEach(function(qstn){ %>
+          <option value="<%= qstn %>" <% if(qstn === usr.secretQstn){ %> selected <% } %>>
+            <%= qstn %>
+          </option>
+        <% }); %>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="secretAnswer"><%= regDict.secretAnswer %>:</label>
+    <div class="col-sm-6">
+      <input class="form-control" id="secretAnswer" name="secretAnswer" type="text" required maxlength="255" value="<%= usr.secretAnswer || '' %>"/>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-6 col-sm-offset-3 text-right">
+      <button class="btn btn-default" type="submit">
+        <%= dict.register %>
+      </button>
+    </div>
+  </div>
+</form>

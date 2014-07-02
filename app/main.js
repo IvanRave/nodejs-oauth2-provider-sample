@@ -11,6 +11,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var MongoClient = require('mongodb').MongoClient;
 
+var partials = require('express-partials');
 var srzHelper = require('./helpers/srz-helper');
 var configHelper = require('./helpers/config-helper');
 var lgr = require('./helpers/lgr-helper').init(module);
@@ -43,6 +44,10 @@ var startApiService = function (authDb) {
 	app.set('view engine', 'ejs');
 	// views The view directory path, defaulting to "process.cwd() + '/views'"
 	app.set('views', process.cwd() + '/app/views');
+  // Add layout.ejs funcionality
+  // https://github.com/publicclass/express-partials
+  app.use(partials());  
+  
 	//app.use(favicon(process.cwd() + '/app/public/favicon.ico'));
 	app.use(bodyParser());
 	app.use(cookieParser()); // required before session.
