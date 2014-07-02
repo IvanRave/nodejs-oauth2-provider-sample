@@ -8,7 +8,7 @@
 			"name" : "oil-client",
 			"clientId" : "abc123",
 			"clientSecret" : "ssh-secret",
-			"redirectUri" : "http://127.0.0.1:12345/handle-auth-code.html"
+			"redirectUri" : "//wfm-client.azurewebsites.net/handle-auth-code.html"
 		}
 	],
 	"adminEmail" : "debugdeveloper@gmail.com"
