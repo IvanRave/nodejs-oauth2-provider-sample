@@ -12,13 +12,31 @@ var dict = require('../dict');
 /** Render a login page */
 var renderPageLogin = function (req, res) {
 	console.log('session', req.session);
-  
+
 	// show ejs template from the views folder
 	res.render('login', {
 		dict : dict,
-    // get all query params and put to register link
-    registerLink: 'register?' + qs.stringify(req.query)
+		// get all query params and put to register link
+		registerLink : 'register?' + qs.stringify(req.query)
 	});
+};
+
+/**
+ * Whether the url is outer or local
+ * @type {Boolean}
+ */
+var isOuterUrl = function (urlStr, currentHost) {
+	// or https
+	if (urlStr.indexOf('http') === 0) {
+		var secondPart = urlStr.split('://')[1];
+		// it is a port or host. port - not used
+		// if wfm.com/asdf/asdf is not starts with wfm.com - is outer
+		if (secondPart.indexOf(currentHost) !== 0) {
+			return true;
+		}
+	}
+
+	return false;
 };
 
 var cbkLogIn = function (req, res, next, err) {
@@ -34,12 +52,20 @@ var cbkLogIn = function (req, res, next, err) {
 	if (encodedRdu) {
 		var rdu = decodeURIComponent(encodedRdu);
 		console.log('successfull login and redirect to redirect url', rdu);
+		// If an url is absolute, check the domain
+
+		if (isOuterUrl(rdu, req.get('host'))) {
+			res.redirect('/'); // redirect to the root
+		} else {
+			// else - redirect to local url
+			res.redirect(rdu);
+		}
 		// Only local urls
-		var localRedirectUrl = req.protocol + '://' + req.get('host') + rdu;
+		//var localRedirectUrl = '//' + req.get('host') + rdu;
 
 		// In other case redirect will be wrong
 		//     and user stay in the login page
-		res.redirect(localRedirectUrl);
+
 		return;
 	} else {
 		console.log('successfull login and redirect');
@@ -112,8 +138,8 @@ var renderPageRegister = function (req, res) {
 		otherErr : '',
 		regDict : regDict,
 		secretQstnArr : secretQstnArr,
-    // get all query params and put to register link
-    loginLink: 'login?' + qs.stringify(req.query)
+		// get all query params and put to register link
+		loginLink : 'login?' + qs.stringify(req.query)
 	});
 };
 
