@@ -14,7 +14,7 @@ var MongoClient = require('mongodb').MongoClient;
 var partials = require('express-partials');
 var srzHelper = require('./helpers/srz-helper');
 var configHelper = require('./helpers/config-helper');
-var lgr = require('./helpers/lgr-helper').init(module);
+var lgr = require('./helpers/lgr-helper');
 var authUserHelper = require('./db/auth-user-helper');
 var accountRouter = require('./routers/account-router');
 var dialogRouter = require('./routers/dialog-router');
@@ -26,9 +26,11 @@ var cbkPageWelcome = function (req, res) {
 };
 
 var cbkPageNonExists = function (req, res) {
-	res.status(404);
-	lgr.debug('Not found URL: %s', req.url);
-	res.send({
+	lgr.info({
+		'Not found URL' : req.url
+	});
+
+	res.send(404, {
 		error : 'Not found'
 	});
 	return;
@@ -44,10 +46,10 @@ var startApiService = function (authDb) {
 	app.set('view engine', 'ejs');
 	// views The view directory path, defaulting to "process.cwd() + '/views'"
 	app.set('views', process.cwd() + '/app/views');
-  // Add layout.ejs funcionality
-  // https://github.com/publicclass/express-partials
-  app.use(partials());  
-  
+	// Add layout.ejs funcionality
+	// https://github.com/publicclass/express-partials
+	app.use(partials());
+
 	//app.use(favicon(process.cwd() + '/app/public/favicon.ico'));
 	app.use(bodyParser());
 	app.use(cookieParser()); // required before session.
@@ -94,14 +96,17 @@ var startApiService = function (authDb) {
 	app.use(cbkPageNonExists);
 
 	var appPort = process.env.PORT || 1337;
-	lgr.info('Port to listen', appPort);
+	lgr.info({
+		'Port to listen' : appPort
+	});
+  
 	app.listen(appPort, cbkListen);
 };
 
 var cbkEnsureIndexAuthUserEmail = function (authDb, err) {
 	// err, status - name of index
 	if (err) {
-		lgr.error(err.message);
+		lgr.error(err);
 		throw err;
 	}
 
@@ -110,7 +115,7 @@ var cbkEnsureIndexAuthUserEmail = function (authDb, err) {
 
 var cbkAuthDbConnect = function (errConn, authDb) {
 	if (errConn) {
-		lgr.error(errConn.message);
+		lgr.error(errConn);
 		throw errConn;
 	}
 

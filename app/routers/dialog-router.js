@@ -4,7 +4,7 @@ var oauth2orize = require('oauth2orize');
 var ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy;
 var appMdw = require('../mdw/app-mdw');
 var authClientHelper = require('../db/auth-client-helper');
-var lgr = require('../helpers/lgr-helper').init(module);
+var lgr = require('../helpers/lgr-helper');
 var validationHelper = require('../helpers/validation-helper');
 var authClientReqSchema = require('../schemas/auth-client-req');
 var authCodeHelper = require('../db/auth-code-helper');
@@ -22,7 +22,9 @@ var cbkFindByClientId = function (redirectUri, done, err, client) {
 		return done(err);
 	}
 
-	lgr.info('client is finded', client);
+	lgr.info({
+		'client is finded' : client
+	});
 
 	if (!client) {
 		return done(null, false);
@@ -40,7 +42,10 @@ var cbkFindByClientId = function (redirectUri, done, err, client) {
 };
 
 var cbkAutorize = function (clientId, redirectUri, done) {
-	lgr.info('clientId: %s, redirectUri: %s', clientId, redirectUri);
+	lgr.info({
+		'clientId' : clientId,
+		'redirectUri' : redirectUri
+	});
 
 	authClientHelper.findByClientId(authClients, clientId,
 		cbkFindByClientId.bind(null, redirectUri, done));
@@ -96,7 +101,9 @@ var cbkFindAuthCode = function (authCodeCln, accessTokenCln, authClient, done, e
 		return done(null, false);
 	}
 
-	lgr.info('result auth code', JSON.stringify(authCode));
+	lgr.info({
+		'result auth code' : authCode
+	});
 
 	if (authClient.id !== authCode.clientId) {
 		return done(null, false);
@@ -114,7 +121,12 @@ var cbkFindAuthCode = function (authCodeCln, accessTokenCln, authClient, done, e
 
 /** Echange an authorization code to an access token */
 var cbkExchangeCode = function (authCodeCln, accessTokenCln, client, code, redirectURI, done) {
-	lgr.info('code exchanging...', code, client);
+	lgr.info({
+		'code exchanging...' : {
+			code : code,
+			client : client
+		}
+	});
 
 	authCodeHelper.findAuthCodeByCode(authCodeCln, code,
 		cbkFindAuthCode.bind(null, authCodeCln, accessTokenCln, client, done));
@@ -201,7 +213,9 @@ exports.createRouter = function (express, passport, authDb) {
 	// 5. Separate request: change code to token
 	router.post('/token',
 		function (req, res, next) {
-		lgr.info('logging token request', req.params);
+		lgr.info({
+			'logging token request' : req.params
+		});
 		next();
 	},
 		passport.authenticate('oauth2-client-password', {

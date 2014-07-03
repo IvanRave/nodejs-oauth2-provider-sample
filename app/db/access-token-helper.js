@@ -1,7 +1,6 @@
 /** @module db/auth-client-helper */
 
 // var appHelper = require('../helpers/app-helper');
-// var lgr = require('../helpers/lgr-helper').init(module);
 var BaseModel = require('../models/base');
 var accessTokenSchema = require('../schemas/access-token');
 var uidHelper = require('../helpers/uid-helper');

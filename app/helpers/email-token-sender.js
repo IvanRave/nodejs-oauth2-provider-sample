@@ -1,12 +1,12 @@
 /** @module helpers/email-token-sender */
 
 var appHelper = require('../helpers/app-helper');
-var lgr = require('../helpers/lgr-helper').init(module);
+var lgr = require('../helpers/lgr-helper');
 var mailHelper = require('../helpers/mail-helper');
 
 var cbkSendMail = function (confirmationToken, next, err) {
 	if (err) {
-		lgr.error(err.message);
+		lgr.error(err);
 		next(new Error('emailIsNotSended'));
 		return;
 	}

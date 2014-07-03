@@ -1,7 +1,7 @@
 /** @module db/auth-client-helper */
 
 var appHelper = require('../helpers/app-helper');
-var lgr = require('../helpers/lgr-helper').init(module);
+var lgr = require('../helpers/lgr-helper');
 
 /**
  * Find by id
@@ -25,18 +25,25 @@ exports.findByClientId = findByClientId;
  *    need for exchange code to access-token
  */
 exports.validateSecret = function (authClients, clientId, clientSecret, done) {
-  lgr.info('client password validate' + clientId);
+	lgr.info('client password validate' + clientId);
 	findByClientId(authClients, clientId, function (err, client) {
-    lgr.info('client-password exec', err, client);
 		if (err) {
+			lgr.error(err);
 			return done(err);
 		}
+
+		lgr.info({
+			'findByClientId' : client
+		});
+
 		if (!client) {
 			return done(null, false);
 		}
+    
 		if (client.clientSecret !== clientSecret) {
 			return done(null, false);
 		}
+    
 		return done(null, client);
 	});
 };

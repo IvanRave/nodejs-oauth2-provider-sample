@@ -6,7 +6,7 @@ var appMdw = require('../mdw/app-mdw');
 var emailTokenHandler = require('../helpers/email-token-handler');
 var registerHandler = require('../helpers/register-handler');
 var uidHelper = require('../helpers/uid-helper');
-var lgr = require('../helpers/lgr-helper').init(module);
+var lgr = require('../helpers/lgr-helper');
 var dict = require('../dict');
 
 /** Render a login page */
@@ -41,7 +41,7 @@ var isOuterUrl = function (urlStr, currentHost) {
 
 var cbkLogIn = function (req, res, next, err) {
 	if (err) {
-		lgr.error('cbkLogInError', err.message);
+		lgr.error(err);
 		next(err);
 		return;
 	}
@@ -81,10 +81,13 @@ var cbkPauth = function (req, res, next, err, user, info) {
 		return next(err);
 	}
 
-	lgr.info('pauth user', JSON.stringify(user));
-
 	// Auth errors or info
-	lgr.info('pauth info', info);
+	lgr.info({
+		'pauth' : {
+			user : user,
+			info : info
+		}
+	});
 
 	if (!user) {
 		// TODO: #23! If some redirect_url -> pass to there

@@ -12,7 +12,7 @@ var cryptoHelper = require('../helpers/crypto-helper');
 var validationHelper = require('../helpers/validation-helper');
 var appHelper = require('../helpers/app-helper');
 var uidHelper = require('../helpers/uid-helper');
-var lgr = require('../helpers/lgr-helper').init(module);
+var lgr = require('../helpers/lgr-helper');
 
 /*
  * Find an authUser
@@ -78,7 +78,11 @@ function cbkInsertAuthUser(authUserCln, authUserItem, retryCount, next, err) {
 		if (err.name === 'MongoError' && err.code === 11000) {
 			// Email
 			if (err.err.indexOf('$email_uq') >= 0) {
-				lgr.error('supererror', 'emailIsAlreadyTaken');
+				lgr.info({
+					'supererror' : 'emailIsAlreadyTaken',
+					'authUserItem' : authUserItem
+				});
+
 				next(new Error('emailIsAlreadyTaken'));
 				return;
 			}
@@ -114,13 +118,15 @@ function insertAuthUser(authUserCln, authUserItem, next, retryCount) {
 	// authUserItem._id = 329342034; // testing duplicate
 
 	if (retryCount > 10) {
-		lgr.error('maxRetriesDuplicateId');
+		lgr.error(new Error('maxRetriesDuplicateId'));
 		next(new Error('maxRetriesDuplicateId')); // Please try again
 		return;
 	}
 
 	authUserItem._id = uidHelper.generateDbId();
-	lgr.info('authUser_id', authUserItem._id);
+	lgr.info({
+		'authUser_id' : authUserItem._id
+	});
 
 	// Insert a record
 	authUserCln.insert(authUserItem, cbkInsertAuthUser.bind(null, authUserCln, authUserItem, retryCount, next));
@@ -167,7 +173,13 @@ var checkResultUser = function (password, next, err, needUserData) {
  * Find an user by email and check password
  */
 exports.findAndCheck = function (authUserCln, email, pwd, next) {
-	lgr.info('find user and check', email, pwd);
+	lgr.info({
+		'find user and check' : {
+			email : email,
+			pwd : pwd
+		}
+	});
+  
 	findByEmail(authUserCln, email,
 		checkResultUser.bind(null, pwd, next));
 };
