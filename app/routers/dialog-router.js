@@ -27,11 +27,12 @@ var cbkFindByClientId = function (redirectUri, done, err, client) {
 	});
 
 	if (!client) {
+		lgr.error(new Error('No client passed to authorize'));
 		return done(null, false);
 	}
 
 	if (client.redirectUri !== redirectUri) {
-		lgr.info('redirectUrls not equals');
+		lgr.error(new Error('redirectUris are not equal: db: ' + client.redirectUri + ' web: ' + redirectUri));
 		return done(null, false);
 	}
 
@@ -152,6 +153,7 @@ var cbkSerializeClient = function (client, done) {
 var cbkDeserializeClient = function (id, done) {
 	authClientHelper.findById(authClients, id, function (err, client) {
 		if (err) {
+      lgr.error(err);
 			return done(err);
 		}
 
