@@ -10,13 +10,7 @@ var authClientReqSchema = require('../schemas/auth-client-req');
 var authCodeHelper = require('../db/auth-code-helper');
 var accessTokenHelper = require('../db/access-token-helper');
 
-var configHelper = require('../helpers/config-helper');
-
-// At this time only few clients,
-// no database
-var authClients = configHelper.get('authClients');
-
-var cbkFindByClientId = function (redirectUri, done, err, client) {
+var cbkFindAuthClient = function (redirectUri, done, err, client) {
 	if (err) {
 		lgr.error(err);
 		return done(err);
@@ -27,7 +21,7 @@ var cbkFindByClientId = function (redirectUri, done, err, client) {
 	});
 
 	if (!client) {
-		lgr.error(new Error('No client passed to authorize'));
+		lgr.error(new Error('noSuchClientInTheDatabase'));
 		return done(null, false);
 	}
 
@@ -42,14 +36,14 @@ var cbkFindByClientId = function (redirectUri, done, err, client) {
 	done(null, client, client.redirectUri);
 };
 
-var cbkAutorize = function (clientId, redirectUri, done) {
+var cbkAutorize = function (authClientCln, clientId, redirectUri, done) {
 	lgr.info({
 		'clientId' : clientId,
 		'redirectUri' : redirectUri
 	});
 
-	authClientHelper.findByClientId(authClients, clientId,
-		cbkFindByClientId.bind(null, redirectUri, done));
+	authClientHelper.findAuthClient(authClientCln, clientId,
+		cbkFindAuthClient.bind(null, redirectUri, done));
 };
 
 var cbkInsertAuthCode = function (done, err, createdAuthCode) {
@@ -69,7 +63,7 @@ var cbkInsertAuthCode = function (done, err, createdAuthCode) {
 var cbkGrantCode = function (authCodeCln, client, redirectUri, serializedUser, ares, done) {
 	// save this code to a database
 	//       to validate later (when exchanging to access_token)
-	var authCode = authCodeHelper.createAuthCode(client.id, redirectUri, serializedUser.uid);
+	var authCode = authCodeHelper.createAuthCode(client['_id'], redirectUri, serializedUser.uid);
 
 	authCodeHelper.insertAuthCode(authCodeCln, authCode, cbkInsertAuthCode.bind(null, done));
 };
@@ -94,11 +88,17 @@ var cbkInsertAccessToken = function (authCodeCln, authCode, done, err, createdAc
 /** Handle the finded auth code */
 var cbkFindAuthCode = function (authCodeCln, accessTokenCln, authClient, done, err, authCode) {
 	if (err) {
+		lgr.error(err);
 		return done(err);
 	}
 
 	// Auth code is not finded in the database
 	if (!authCode) {
+		lgr.error(new Error('noAuthCode'), {
+			'authClient' : authClient,
+			'authCode' : authCode
+		});
+
 		return done(null, false);
 	}
 
@@ -106,11 +106,21 @@ var cbkFindAuthCode = function (authCodeCln, accessTokenCln, authClient, done, e
 		'result auth code' : authCode
 	});
 
-	if (authClient.id !== authCode.clientId) {
+	if (authClient['_id'] !== authCode['clientId']) {
+		lgr.error(new Error('clientsNotMatch'), {
+			'authCode' : authCode,
+			'authClient' : authClient
+		});
+
 		return done(null, false);
 	}
 
 	if (authClient.redirectUri !== authCode.redirectUri) {
+		lgr.error(new Error('redirectUriNotMatch'), {
+			'authCode_redirectUri' : authCode.redirectUri,
+			'authClient_redirectUri' : authClient.redirectUri
+		});
+
 		return done(null, false);
 	}
 
@@ -146,18 +156,18 @@ var cbkExchangeCode = function (authCodeCln, accessTokenCln, client, code, redir
 	// });
 };
 
-var cbkSerializeClient = function (client, done) {
-	return done(null, client.id);
+var cbkSerializeClient = function (authClient, done) {
+	return done(null, authClient._id);
 };
 
-var cbkDeserializeClient = function (id, done) {
-	authClientHelper.findById(authClients, id, function (err, client) {
+var cbkDeserializeClient = function (authClientCln, clientId, done) {
+	authClientHelper.findAuthClient(authClientCln, clientId, function (err, authClient) {
 		if (err) {
-      lgr.error(err);
+			lgr.error(err);
 			return done(err);
 		}
 
-		return done(null, client);
+		return done(null, authClient);
 	});
 };
 
@@ -168,6 +178,9 @@ var skipDecisionMdw = function (req, res) {
 var checkAuthorizeParams = function (req, res, next) {
 	var validationErrors = validationHelper.validate(req.query, authClientReqSchema);
 	if (validationErrors.length > 0) {
+		lgr.error(new Error('authClientReqSchemaValidation'), {
+			'validationErrors' : validationErrors
+		});
 		res.send(400, {
 			'validationErrors' : validationErrors
 		});
@@ -180,8 +193,13 @@ var checkAuthorizeParams = function (req, res, next) {
 
 exports.createRouter = function (express, passport, authDb) {
 	lgr.info('Created router');
+
+	var authCodeCln = authDb.collection('authCode');
+	var accessTokenCln = authDb.collection('accessToken');
+	var authClientCln = authDb.collection('authClient');
+
 	passport.use(new ClientPasswordStrategy(
-			authClientHelper.validateSecret.bind(null, authClients)));
+			authClientHelper.validateSecret.bind(null, authClientCln)));
 
 	var router = express.Router();
 
@@ -189,10 +207,7 @@ exports.createRouter = function (express, passport, authDb) {
 
 	server.serializeClient(cbkSerializeClient);
 
-	server.deserializeClient(cbkDeserializeClient);
-
-	var authCodeCln = authDb.collection('authCode');
-	var accessTokenCln = authDb.collection('accessToken');
+	server.deserializeClient(cbkDeserializeClient.bind(null, authClientCln));
 
 	server.grant(oauth2orize.grant.code(cbkGrantCode.bind(null, authCodeCln)));
 
@@ -203,7 +218,7 @@ exports.createRouter = function (express, passport, authDb) {
 	router.get('/authorize',
 		appMdw.ensureAuth,
 		checkAuthorizeParams,
-		server.authorization(cbkAutorize),
+		server.authorization(cbkAutorize.bind(null, authClientCln)),
 		skipDecisionMdw);
 
 	// 3. Skip decision page

@@ -3,13 +3,5 @@
 		"tokenLife" : 3600,
 		"secret" : "supercat"
 	},
-	"authClients" : [{
-			"id" : 1,
-			"name" : "oil-client",
-			"clientId" : "abc123",
-			"clientSecret" : "ssh-secret",
-			"redirectUri" : "//ivanrave.github.io/wfm-client/handle-auth-code.html"
-		}
-	],
 	"adminEmail" : "debugdeveloper@gmail.com"
 }

@@ -1,13 +1,7 @@
 {
 	"table" : "authClient",
 	"columns" : {
-		"id" : {
-			"dataType" : "number"
-		},
-		"name" : {
-			"dataType" : "string"
-		},
-		"clientId" : {
+		"_id" : {
 			"dataType" : "string"
 		},
 		"clientSecret" : {

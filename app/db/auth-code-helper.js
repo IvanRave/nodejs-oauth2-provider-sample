@@ -36,7 +36,7 @@ var cbkInsertAuthCode = function (authCodeCln, authCode, next, err) {
 
 /** Insert to the db */
 exports.insertAuthCode = function (authCodeCln, authCode, next) {
-	authCode._id = uidHelper.generate(16);
+	authCode['_id'] = uidHelper.generate(16);
 	authCodeCln.insert(authCode, cbkInsertAuthCode.bind(null, authCodeCln, authCode, next));
 };
 

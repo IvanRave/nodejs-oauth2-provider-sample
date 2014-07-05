@@ -23,20 +23,33 @@ var mailHelper = require('../helpers/mail-helper');
 // });
 // };
 
-exports.info = function(msgObj){
-  console.log(JSON.stringify(msgObj));
+exports.info = function (msgObj) {
+	console.log(JSON.stringify(msgObj));
 };
 
-exports.error = function(err){
-	var mailSubject = 'Petrohelp Auth error';
-	var mailText = err.message + ': ' + err.stack;
+/**
+ * Log error
+ * @param {Object} err - Error
+ * @param {Object} addt - Additional message
+ */
+exports.error = function (err, addt) {
+	var mailSubject = 'Petrohelp Auth error: ' + err.message;
+	var mailText = err.message;
+
+	if (addt) {
+		mailText += ' Addt: ' + JSON.stringify(addt);
+	}
+
+	if (err.stack) {
+		mailText += ' Stack: ' + err.stack;
+	}
 
 	console.log(mailSubject + ': ' + mailText);
 	// Send to admin
 	mailHelper.sendMail({
-    subject: mailSubject,
-    text: mailText
-  });
+		subject : mailSubject,
+		text : mailText
+	});
 };
 
 module.exports = exports;
