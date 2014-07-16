@@ -13,11 +13,19 @@ var dict = require('../dict');
 var renderPageLogin = function (req, res) {
 	console.log('session', req.session);
 
+	// extract message from a query params
+	var failureMsg = req.query.message;
+  
+	if (failureMsg) {
+		delete req.query.message;
+	}
+
 	// show ejs template from the views folder
 	res.render('login', {
 		dict : dict,
 		// get all query params and put to register link
-		registerLink : 'register?' + qs.stringify(req.query)
+		registerLink : 'register?' + qs.stringify(req.query),
+		failureMsg : failureMsg || ''
 	});
 };
 
@@ -90,8 +98,13 @@ var cbkPauth = function (req, res, next, err, user, info) {
 	});
 
 	if (!user) {
-		// TODO: #23! If some redirect_url -> pass to there
-		return res.redirect('/account/login?message=' + info.message);
+		// get all query params
+		// add a message
+		// put to the query
+		var curParams = req.query;
+		curParams.message = info.message;
+
+		return res.redirect('/account/login?' + qs.stringify(curParams));
 	}
 
 	req.logIn(user, cbkLogIn.bind(null, req, res, next));
@@ -111,6 +124,7 @@ var cbkPageLogout = function (req, res) {
 	req.logout();
 	res.redirect('/');
 };
+
 // TODO: #43! get from global dictionary
 var regDict = {
 	fname : 'First name',
