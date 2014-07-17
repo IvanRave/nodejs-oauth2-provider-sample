@@ -1,6 +1,6 @@
 /**
  * @module main
- * @todo #23! Register user
+ * @todo #23! Translate error messages, like noSuchUser
  */
 
 var express = require('express');
@@ -42,16 +42,8 @@ var cbkListen = function () {
 
 var startApiService = function (authDb) {
 	var app = express();
-	app.use(express.static(process.cwd() + '/app/public'));
-	app.set('view engine', 'ejs');
-	// views The view directory path, defaulting to "process.cwd() + '/views'"
-	app.set('views', process.cwd() + '/app/views');
-	// Add layout.ejs funcionality
-	// https://github.com/publicclass/express-partials
-	app.use(partials());
 
 	//app.use(favicon(process.cwd() + '/app/public/favicon.ico'));
-	app.use(bodyParser());
 	app.use(cookieParser()); // required before session.
 
 	// todo: #44! https://github.com/visionmedia/connect-redis
@@ -65,6 +57,16 @@ var startApiService = function (authDb) {
 			// // maxAge : 60000
 			// // }
 		}));
+
+	app.use(express.static(process.cwd() + '/app/public'));
+	app.set('view engine', 'ejs');
+	// views The view directory path, defaulting to "process.cwd() + '/views'"
+	app.set('views', process.cwd() + '/app/views');
+	// Add layout.ejs funcionality
+	// https://github.com/publicclass/express-partials
+	app.use(partials());
+
+	app.use(bodyParser());
 
 	passport.serializeUser(srzHelper.serialize);
 	passport.deserializeUser(srzHelper.deserialize);
@@ -99,7 +101,7 @@ var startApiService = function (authDb) {
 	lgr.info({
 		'Port to listen' : appPort
 	});
-  
+
 	app.listen(appPort, cbkListen);
 };
 
