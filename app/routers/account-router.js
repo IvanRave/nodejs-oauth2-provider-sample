@@ -15,7 +15,7 @@ var renderPageLogin = function (req, res) {
 
 	// extract message from a query params
 	var failureMsg = req.query.message;
-  
+
 	if (failureMsg) {
 		delete req.query.message;
 	}
@@ -121,8 +121,9 @@ var cbkPageInfo = function (req, res) {
 };
 
 var cbkPageLogout = function (req, res) {
+	var redirectUri = req.query['redirect_uri'];
 	req.logout();
-	res.redirect('/');
+	res.redirect(redirectUri || '/');
 };
 
 // TODO: #43! get from global dictionary

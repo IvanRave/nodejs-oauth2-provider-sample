@@ -16,12 +16,12 @@ var getCurrentProfile = function (authUserCln, req, res) {
 	console.log('requser', req.user);
 	authUserHelper.findAuthUserByFields(authUserCln, req.user.uid, {
 		'uname' : 1
-    // _id - by default - true
+		// _id - by default - true
 		// other fields, like 'lname', 'email'..
 	}, function (err, data) {
 		// change _id to uid - No underscores in results
 		data.uid = data._id;
-    delete data._id;
+		delete data._id;
 		res.send(200, data);
 	});
 };
