@@ -12,7 +12,7 @@ Create a web client, where you want to use this authentication. See example of a
 
 Get client id from the provider. Contact with administration of the provider to register your application. Client parameters: ```client_id```, ```redirect_uri```
 
-## Process of authentication and authorization
+## Get a confirmation code (authentication)
 
 1. Redirect your users (or open a popup window) to the special page [link2] of the provider with next query params:
   - client\_id = ```APP_CLIENT_ID```
@@ -20,6 +20,15 @@ Get client id from the provider. Contact with administration of the provider to 
   - response_type = code
 2. If all parameters are valid, the user will be redirected to the login/register page.
 3. After successful login, the user will be redirected to the ```APP_REDIRECT_URI``` with one parameter in url: ```code```
-4. Get this code from url of a page and use it to exchange to the access\_token
+4. Get this confirmation code from url of a page and use it to exchange to an access\_token
 
-## Excange a confi
+## Exchange a confirmation code to an access token
+
+For exchanging you must have a ```client_secret``` code
+
+If you develop a JavaScript application without server side or a mobile application with non-secured server side (installed application), you can't store secret codes.
+In this case, you can use some side web server to keep this ```client_secret``` and get ```access_token``` from the provider.
+```access_token``` allows you to send requests to some API server, verified by provider. This API server can be used to store your ```client_secret``` and exchange your ```confirmation_code``` to ```access_token```:
+1. Contact with administration of your API server to register your client.
+2. See API docs for your API server to get method to exchange a ```confirmation_code``` to ```access_token```
+3. Use received ```access_token``` to send requests to your API server
