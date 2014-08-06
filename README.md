@@ -29,6 +29,7 @@ For exchanging you must have a ```client_secret``` code
 If you develop a JavaScript application without server side or a mobile application with non-secured server side (installed application), you can't store secret codes.
 In this case, you can use some side web server to keep this ```client_secret``` and get ```access_token``` from the provider.
 ```access_token``` allows you to send requests to some API server, verified by provider. This API server can be used to store your ```client_secret``` and exchange your ```confirmation_code``` to ```access_token```:
+
 1. Contact with administration of your API server to register your client.
 2. See API docs for your API server to get method to exchange a ```confirmation_code``` to ```access_token```
 3. Use received ```access_token``` to send requests to your API server
